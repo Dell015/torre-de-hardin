@@ -1,7 +1,7 @@
 {
  "sunset": {
-  "w": 1536,
-  "h": 2048,
+  "w": 2400,
+  "h": 3200,
   "srcs": [
    {
     "f": "sunset-640.webp",
@@ -10,13 +10,21 @@
    {
     "f": "sunset-1200.webp",
     "w": 1200
+   },
+   {
+    "f": "sunset-1920.webp",
+    "w": 1920
+   },
+   {
+    "f": "sunset-2400.webp",
+    "w": 2400
    }
   ],
-  "color": "#897f6f"
+  "color": "#887e6f"
  },
  "tower-violet": {
-  "w": 1536,
-  "h": 2048,
+  "w": 2400,
+  "h": 3200,
   "srcs": [
    {
     "f": "tower-violet-640.webp",
@@ -25,13 +33,21 @@
    {
     "f": "tower-violet-1200.webp",
     "w": 1200
+   },
+   {
+    "f": "tower-violet-1920.webp",
+    "w": 1920
+   },
+   {
+    "f": "tower-violet-2400.webp",
+    "w": 2400
    }
   ],
-  "color": "#1f191b"
+  "color": "#1d1819"
  },
  "tower-bloom": {
-  "w": 1536,
-  "h": 2048,
+  "w": 2400,
+  "h": 3200,
   "srcs": [
    {
     "f": "tower-bloom-640.webp",
@@ -40,13 +56,21 @@
    {
     "f": "tower-bloom-1200.webp",
     "w": 1200
+   },
+   {
+    "f": "tower-bloom-1920.webp",
+    "w": 1920
+   },
+   {
+    "f": "tower-bloom-2400.webp",
+    "w": 2400
    }
   ],
-  "color": "#423d38"
+  "color": "#403b36"
  },
  "tower-bridge": {
-  "w": 1536,
-  "h": 2048,
+  "w": 2400,
+  "h": 3200,
   "srcs": [
    {
     "f": "tower-bridge-640.webp",
@@ -55,13 +79,21 @@
    {
     "f": "tower-bridge-1200.webp",
     "w": 1200
+   },
+   {
+    "f": "tower-bridge-1920.webp",
+    "w": 1920
+   },
+   {
+    "f": "tower-bridge-2400.webp",
+    "w": 2400
    }
   ],
-  "color": "#4b453e"
+  "color": "#49433c"
  },
  "tower-bougainvillea": {
-  "w": 1536,
-  "h": 2048,
+  "w": 2400,
+  "h": 3200,
   "srcs": [
    {
     "f": "tower-bougainvillea-640.webp",
@@ -70,13 +102,21 @@
    {
     "f": "tower-bougainvillea-1200.webp",
     "w": 1200
+   },
+   {
+    "f": "tower-bougainvillea-1920.webp",
+    "w": 1920
+   },
+   {
+    "f": "tower-bougainvillea-2400.webp",
+    "w": 2400
    }
   ],
-  "color": "#5e5146"
+  "color": "#5c4f45"
  },
  "tower-play": {
-  "w": 2048,
-  "h": 1536,
+  "w": 2880,
+  "h": 2160,
   "srcs": [
    {
     "f": "tower-play-640.webp",
@@ -89,13 +129,17 @@
    {
     "f": "tower-play-1920.webp",
     "w": 1920
+   },
+   {
+    "f": "tower-play-2880.webp",
+    "w": 2880
    }
   ],
-  "color": "#343426"
+  "color": "#313225"
  },
  "night-terrace": {
-  "w": 2048,
-  "h": 1152,
+  "w": 2880,
+  "h": 1620,
   "srcs": [
    {
     "f": "night-terrace-640.webp",
@@ -108,13 +152,17 @@
    {
     "f": "night-terrace-1920.webp",
     "w": 1920
+   },
+   {
+    "f": "night-terrace-2880.webp",
+    "w": 2880
    }
   ],
-  "color": "#3a3737"
+  "color": "#373536"
  },
  "aerial-night": {
-  "w": 2048,
-  "h": 1173,
+  "w": 2880,
+  "h": 1650,
   "srcs": [
    {
     "f": "aerial-night-640.webp",
@@ -127,13 +175,17 @@
    {
     "f": "aerial-night-1920.webp",
     "w": 1920
+   },
+   {
+    "f": "aerial-night-2880.webp",
+    "w": 2880
    }
   ],
-  "color": "#2a2e27"
+  "color": "#272a24"
  },
  "aerial-day-a": {
-  "w": 1680,
-  "h": 1173,
+  "w": 2880,
+  "h": 2011,
   "srcs": [
    {
     "f": "aerial-day-a-640.webp",
@@ -142,13 +194,21 @@
    {
     "f": "aerial-day-a-1200.webp",
     "w": 1200
+   },
+   {
+    "f": "aerial-day-a-1920.webp",
+    "w": 1920
+   },
+   {
+    "f": "aerial-day-a-2880.webp",
+    "w": 2880
    }
   ],
-  "color": "#809070"
+  "color": "#7c8d6d"
  },
  "aerial-day-b": {
-  "w": 1926,
-  "h": 1227,
+  "w": 2880,
+  "h": 1835,
   "srcs": [
    {
     "f": "aerial-day-b-640.webp",
@@ -161,13 +221,17 @@
    {
     "f": "aerial-day-b-1920.webp",
     "w": 1920
+   },
+   {
+    "f": "aerial-day-b-2880.webp",
+    "w": 2880
    }
   ],
-  "color": "#7e8f78"
+  "color": "#7b8d77"
  },
  "aerial-day-c": {
-  "w": 1843,
-  "h": 1200,
+  "w": 2880,
+  "h": 1875,
   "srcs": [
    {
     "f": "aerial-day-c-640.webp",
@@ -176,13 +240,21 @@
    {
     "f": "aerial-day-c-1200.webp",
     "w": 1200
+   },
+   {
+    "f": "aerial-day-c-1920.webp",
+    "w": 1920
+   },
+   {
+    "f": "aerial-day-c-2880.webp",
+    "w": 2880
    }
   ],
-  "color": "#849071"
+  "color": "#818d6e"
  },
  "aerial-day-d": {
-  "w": 1557,
-  "h": 1201,
+  "w": 2880,
+  "h": 2222,
   "srcs": [
    {
     "f": "aerial-day-d-640.webp",
@@ -191,13 +263,21 @@
    {
     "f": "aerial-day-d-1200.webp",
     "w": 1200
+   },
+   {
+    "f": "aerial-day-d-1920.webp",
+    "w": 1920
+   },
+   {
+    "f": "aerial-day-d-2880.webp",
+    "w": 2880
    }
   ],
-  "color": "#898e79"
+  "color": "#858b77"
  },
  "pool-wide": {
-  "w": 2048,
-  "h": 1536,
+  "w": 2880,
+  "h": 2160,
   "srcs": [
    {
     "f": "pool-wide-640.webp",
@@ -210,13 +290,17 @@
    {
     "f": "pool-wide-1920.webp",
     "w": 1920
+   },
+   {
+    "f": "pool-wide-2880.webp",
+    "w": 2880
    }
   ],
-  "color": "#767e7d"
+  "color": "#747d7d"
  },
  "pool-terrace": {
-  "w": 2048,
-  "h": 1536,
+  "w": 2880,
+  "h": 2160,
   "srcs": [
    {
     "f": "pool-terrace-640.webp",
@@ -229,13 +313,17 @@
    {
     "f": "pool-terrace-1920.webp",
     "w": 1920
+   },
+   {
+    "f": "pool-terrace-2880.webp",
+    "w": 2880
    }
   ],
-  "color": "#6a7d79"
+  "color": "#697b78"
  },
  "pool-deep": {
-  "w": 2048,
-  "h": 1536,
+  "w": 2880,
+  "h": 2160,
   "srcs": [
    {
     "f": "pool-deep-640.webp",
@@ -248,24 +336,40 @@
    {
     "f": "pool-deep-1920.webp",
     "w": 1920
+   },
+   {
+    "f": "pool-deep-2880.webp",
+    "w": 2880
    }
   ],
-  "color": "#678b87"
+  "color": "#668a87"
  },
  "pool-moon": {
-  "w": 720,
-  "h": 960,
+  "w": 2400,
+  "h": 3200,
   "srcs": [
    {
     "f": "pool-moon-640.webp",
     "w": 640
+   },
+   {
+    "f": "pool-moon-1200.webp",
+    "w": 1200
+   },
+   {
+    "f": "pool-moon-1920.webp",
+    "w": 1920
+   },
+   {
+    "f": "pool-moon-2400.webp",
+    "w": 2400
    }
   ],
-  "color": "#828b8b"
+  "color": "#818a8b"
  },
  "pool-villas": {
-  "w": 2048,
-  "h": 1366,
+  "w": 2880,
+  "h": 1921,
   "srcs": [
    {
     "f": "pool-villas-640.webp",
@@ -278,35 +382,59 @@
    {
     "f": "pool-villas-1920.webp",
     "w": 1920
+   },
+   {
+    "f": "pool-villas-2880.webp",
+    "w": 2880
    }
   ],
-  "color": "#999282"
+  "color": "#989182"
  },
  "pool-dawn": {
-  "w": 590,
-  "h": 443,
+  "w": 2360,
+  "h": 1772,
   "srcs": [
    {
-    "f": "pool-dawn-590.webp",
-    "w": 590
+    "f": "pool-dawn-640.webp",
+    "w": 640
+   },
+   {
+    "f": "pool-dawn-1200.webp",
+    "w": 1200
+   },
+   {
+    "f": "pool-dawn-1920.webp",
+    "w": 1920
+   },
+   {
+    "f": "pool-dawn-2360.webp",
+    "w": 2360
    }
   ],
-  "color": "#879394"
+  "color": "#859295"
  },
  "pool-unicorn": {
-  "w": 443,
-  "h": 590,
+  "w": 1772,
+  "h": 2360,
   "srcs": [
    {
-    "f": "pool-unicorn-443.webp",
-    "w": 443
+    "f": "pool-unicorn-640.webp",
+    "w": 640
+   },
+   {
+    "f": "pool-unicorn-1200.webp",
+    "w": 1200
+   },
+   {
+    "f": "pool-unicorn-1772.webp",
+    "w": 1772
    }
   ],
-  "color": "#849391"
+  "color": "#839391"
  },
  "villa-night": {
-  "w": 2048,
-  "h": 1536,
+  "w": 2880,
+  "h": 2160,
   "srcs": [
    {
     "f": "villa-night-640.webp",
@@ -319,13 +447,17 @@
    {
     "f": "villa-night-1920.webp",
     "w": 1920
+   },
+   {
+    "f": "villa-night-2880.webp",
+    "w": 2880
    }
   ],
-  "color": "#615749"
+  "color": "#605748"
  },
  "terrace": {
-  "w": 1536,
-  "h": 2048,
+  "w": 2400,
+  "h": 3200,
   "srcs": [
    {
     "f": "terrace-640.webp",
@@ -334,13 +466,21 @@
    {
     "f": "terrace-1200.webp",
     "w": 1200
+   },
+   {
+    "f": "terrace-1920.webp",
+    "w": 1920
+   },
+   {
+    "f": "terrace-2400.webp",
+    "w": 2400
    }
   ],
-  "color": "#776956"
+  "color": "#766957"
  },
  "room-a": {
-  "w": 1536,
-  "h": 2048,
+  "w": 2400,
+  "h": 3200,
   "srcs": [
    {
     "f": "room-a-640.webp",
@@ -349,13 +489,21 @@
    {
     "f": "room-a-1200.webp",
     "w": 1200
+   },
+   {
+    "f": "room-a-1920.webp",
+    "w": 1920
+   },
+   {
+    "f": "room-a-2400.webp",
+    "w": 2400
    }
   ],
-  "color": "#9d8471"
+  "color": "#9c8471"
  },
  "room-b": {
-  "w": 2048,
-  "h": 1536,
+  "w": 2880,
+  "h": 2160,
   "srcs": [
    {
     "f": "room-b-640.webp",
@@ -368,13 +516,17 @@
    {
     "f": "room-b-1920.webp",
     "w": 1920
+   },
+   {
+    "f": "room-b-2880.webp",
+    "w": 2880
    }
   ],
-  "color": "#9f8d79"
+  "color": "#9f8d7a"
  },
  "room-c": {
-  "w": 2048,
-  "h": 1536,
+  "w": 2880,
+  "h": 2160,
   "srcs": [
    {
     "f": "room-c-640.webp",
@@ -387,13 +539,17 @@
    {
     "f": "room-c-1920.webp",
     "w": 1920
+   },
+   {
+    "f": "room-c-2880.webp",
+    "w": 2880
    }
   ],
   "color": "#c0ab97"
  },
  "room-d": {
-  "w": 1536,
-  "h": 2048,
+  "w": 2400,
+  "h": 3200,
   "srcs": [
    {
     "f": "room-d-640.webp",
@@ -402,13 +558,21 @@
    {
     "f": "room-d-1200.webp",
     "w": 1200
+   },
+   {
+    "f": "room-d-1920.webp",
+    "w": 1920
+   },
+   {
+    "f": "room-d-2400.webp",
+    "w": 2400
    }
   ],
-  "color": "#b5997f"
+  "color": "#b4997f"
  },
  "room-e": {
-  "w": 1536,
-  "h": 2048,
+  "w": 2400,
+  "h": 3200,
   "srcs": [
    {
     "f": "room-e-640.webp",
@@ -417,13 +581,21 @@
    {
     "f": "room-e-1200.webp",
     "w": 1200
+   },
+   {
+    "f": "room-e-1920.webp",
+    "w": 1920
+   },
+   {
+    "f": "room-e-2400.webp",
+    "w": 2400
    }
   ],
-  "color": "#8a6d59"
+  "color": "#896d59"
  },
  "room-tropic": {
-  "w": 1366,
-  "h": 2048,
+  "w": 2134,
+  "h": 3200,
   "srcs": [
    {
     "f": "room-tropic-640.webp",
@@ -432,13 +604,21 @@
    {
     "f": "room-tropic-1200.webp",
     "w": 1200
+   },
+   {
+    "f": "room-tropic-1920.webp",
+    "w": 1920
+   },
+   {
+    "f": "room-tropic-2134.webp",
+    "w": 2134
    }
   ],
-  "color": "#917f6f"
+  "color": "#917f70"
  },
  "bath-a": {
-  "w": 1536,
-  "h": 2048,
+  "w": 2400,
+  "h": 3200,
   "srcs": [
    {
     "f": "bath-a-640.webp",
@@ -447,13 +627,21 @@
    {
     "f": "bath-a-1200.webp",
     "w": 1200
+   },
+   {
+    "f": "bath-a-1920.webp",
+    "w": 1920
+   },
+   {
+    "f": "bath-a-2400.webp",
+    "w": 2400
    }
   ],
-  "color": "#aea08d"
+  "color": "#afa08d"
  },
  "bath-b": {
-  "w": 1536,
-  "h": 2048,
+  "w": 2400,
+  "h": 3200,
   "srcs": [
    {
     "f": "bath-b-640.webp",
@@ -462,13 +650,21 @@
    {
     "f": "bath-b-1200.webp",
     "w": 1200
+   },
+   {
+    "f": "bath-b-1920.webp",
+    "w": 1920
+   },
+   {
+    "f": "bath-b-2400.webp",
+    "w": 2400
    }
   ],
-  "color": "#a59a8f"
+  "color": "#a59b90"
  },
  "hall-a": {
-  "w": 2048,
-  "h": 1366,
+  "w": 2880,
+  "h": 1921,
   "srcs": [
    {
     "f": "hall-a-640.webp",
@@ -481,13 +677,17 @@
    {
     "f": "hall-a-1920.webp",
     "w": 1920
+   },
+   {
+    "f": "hall-a-2880.webp",
+    "w": 2880
    }
   ],
-  "color": "#937a65"
+  "color": "#927965"
  },
  "hall-b": {
-  "w": 2048,
-  "h": 1366,
+  "w": 2880,
+  "h": 1921,
   "srcs": [
    {
     "f": "hall-b-640.webp",
@@ -500,13 +700,17 @@
    {
     "f": "hall-b-1920.webp",
     "w": 1920
+   },
+   {
+    "f": "hall-b-2880.webp",
+    "w": 2880
    }
   ],
-  "color": "#968264"
+  "color": "#958163"
  },
  "hall-c": {
-  "w": 2048,
-  "h": 1366,
+  "w": 2880,
+  "h": 1921,
   "srcs": [
    {
     "f": "hall-c-640.webp",
@@ -519,24 +723,36 @@
    {
     "f": "hall-c-1920.webp",
     "w": 1920
+   },
+   {
+    "f": "hall-c-2880.webp",
+    "w": 2880
    }
   ],
-  "color": "#886f57"
+  "color": "#876e56"
  },
  "hall-entrance": {
-  "w": 1152,
-  "h": 2048,
+  "w": 1800,
+  "h": 3200,
   "srcs": [
    {
     "f": "hall-entrance-640.webp",
     "w": 640
+   },
+   {
+    "f": "hall-entrance-1200.webp",
+    "w": 1200
+   },
+   {
+    "f": "hall-entrance-1800.webp",
+    "w": 1800
    }
   ],
-  "color": "#878371"
+  "color": "#84816f"
  },
  "wedding-aisle": {
-  "w": 1536,
-  "h": 2048,
+  "w": 2400,
+  "h": 3200,
   "srcs": [
    {
     "f": "wedding-aisle-640.webp",
@@ -545,13 +761,21 @@
    {
     "f": "wedding-aisle-1200.webp",
     "w": 1200
+   },
+   {
+    "f": "wedding-aisle-1920.webp",
+    "w": 1920
+   },
+   {
+    "f": "wedding-aisle-2400.webp",
+    "w": 2400
    }
   ],
-  "color": "#767863"
+  "color": "#757662"
  },
  "wedding-arch": {
-  "w": 1536,
-  "h": 2048,
+  "w": 2400,
+  "h": 3200,
   "srcs": [
    {
     "f": "wedding-arch-640.webp",
@@ -560,13 +784,21 @@
    {
     "f": "wedding-arch-1200.webp",
     "w": 1200
+   },
+   {
+    "f": "wedding-arch-1920.webp",
+    "w": 1920
+   },
+   {
+    "f": "wedding-arch-2400.webp",
+    "w": 2400
    }
   ],
-  "color": "#777b78"
+  "color": "#767a78"
  },
  "wedding-arch-b": {
-  "w": 1536,
-  "h": 2048,
+  "w": 2400,
+  "h": 3200,
   "srcs": [
    {
     "f": "wedding-arch-b-640.webp",
@@ -575,13 +807,21 @@
    {
     "f": "wedding-arch-b-1200.webp",
     "w": 1200
+   },
+   {
+    "f": "wedding-arch-b-1920.webp",
+    "w": 1920
+   },
+   {
+    "f": "wedding-arch-b-2400.webp",
+    "w": 2400
    }
   ],
-  "color": "#72766e"
+  "color": "#71756d"
  },
  "wedding-table": {
-  "w": 1536,
-  "h": 2048,
+  "w": 2400,
+  "h": 3200,
   "srcs": [
    {
     "f": "wedding-table-640.webp",
@@ -590,13 +830,21 @@
    {
     "f": "wedding-table-1200.webp",
     "w": 1200
+   },
+   {
+    "f": "wedding-table-1920.webp",
+    "w": 1920
+   },
+   {
+    "f": "wedding-table-2400.webp",
+    "w": 2400
    }
   ],
-  "color": "#8e8d84"
+  "color": "#8d8c83"
  },
  "wedding-long": {
-  "w": 1536,
-  "h": 2048,
+  "w": 2400,
+  "h": 3200,
   "srcs": [
    {
     "f": "wedding-long-640.webp",
@@ -605,13 +853,21 @@
    {
     "f": "wedding-long-1200.webp",
     "w": 1200
+   },
+   {
+    "f": "wedding-long-1920.webp",
+    "w": 1920
+   },
+   {
+    "f": "wedding-long-2400.webp",
+    "w": 2400
    }
   ],
-  "color": "#71756b"
+  "color": "#6f7268"
  },
  "garden-day-a": {
-  "w": 2048,
-  "h": 1542,
+  "w": 2880,
+  "h": 2168,
   "srcs": [
    {
     "f": "garden-day-a-640.webp",
@@ -624,41 +880,81 @@
    {
     "f": "garden-day-a-1920.webp",
     "w": 1920
+   },
+   {
+    "f": "garden-day-a-2880.webp",
+    "w": 2880
    }
   ],
-  "color": "#7a7b68"
+  "color": "#777966"
  },
  "garden-roof-a": {
-  "w": 590,
-  "h": 443,
+  "w": 2360,
+  "h": 1772,
   "srcs": [
    {
-    "f": "garden-roof-a-590.webp",
-    "w": 590
+    "f": "garden-roof-a-640.webp",
+    "w": 640
+   },
+   {
+    "f": "garden-roof-a-1200.webp",
+    "w": 1200
+   },
+   {
+    "f": "garden-roof-a-1920.webp",
+    "w": 1920
+   },
+   {
+    "f": "garden-roof-a-2360.webp",
+    "w": 2360
    }
   ],
-  "color": "#8e9888"
+  "color": "#8b9586"
  },
  "garden-roof-b": {
-  "w": 590,
-  "h": 443,
+  "w": 2360,
+  "h": 1772,
   "srcs": [
    {
-    "f": "garden-roof-b-590.webp",
-    "w": 590
+    "f": "garden-roof-b-640.webp",
+    "w": 640
+   },
+   {
+    "f": "garden-roof-b-1200.webp",
+    "w": 1200
+   },
+   {
+    "f": "garden-roof-b-1920.webp",
+    "w": 1920
+   },
+   {
+    "f": "garden-roof-b-2360.webp",
+    "w": 2360
    }
   ],
-  "color": "#858b7f"
+  "color": "#81887c"
  },
  "tower-gold": {
-  "w": 590,
-  "h": 443,
+  "w": 2360,
+  "h": 1772,
   "srcs": [
    {
-    "f": "tower-gold-590.webp",
-    "w": 590
+    "f": "tower-gold-640.webp",
+    "w": 640
+   },
+   {
+    "f": "tower-gold-1200.webp",
+    "w": 1200
+   },
+   {
+    "f": "tower-gold-1920.webp",
+    "w": 1920
+   },
+   {
+    "f": "tower-gold-2360.webp",
+    "w": 2360
    }
   ],
-  "color": "#444d45"
+  "color": "#414a43"
  }
 }

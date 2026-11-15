@@ -28,8 +28,7 @@ export default function Img({ name, alt, sizes = "100vw", priority, className, s
       alt={alt}
       loading={priority ? "eager" : "lazy"}
       decoding="async"
-      // @ts-ignore
-      fetchpriority={priority ? "high" : undefined}
+      fetchPriority={priority ? "high" : undefined}
       draggable={false}
       className={className}
       style={{ backgroundColor: m.color, objectPosition: pos, ...style }}

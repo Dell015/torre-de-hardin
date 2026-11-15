@@ -15,14 +15,27 @@ import Preloader from "@/components/Preloader";
 import Header from "@/components/Header";
 import ReserveBar from "@/components/ReserveBar";
 
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ||
+  (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : "http://localhost:3000");
+
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
+  applicationName: "Torre de Jardin",
   title: "Torre de Jardin — Villas, Resort & Event Place · Naguilian, Isabela",
   description:
     "A private garden resort in Naguilian, Isabela. Villas, cabins, a pool, a function hall and a tower that lights the night. The city is far. That is the point.",
   openGraph: {
     title: "Torre de Jardin — The city is far. That is the point.",
     description: "Villas, pool, gardens and events in Naguilian, Isabela. Reserve your dates.",
-    images: ["/img/sunset-1200.webp"],
+    siteName: "Torre de Jardin",
+    type: "website",
+    locale: "en_PH",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Torre de Jardin — The city is far. That is the point.",
+    description: "Villas, pool, gardens and events in Naguilian, Isabela. Reserve your dates.",
   },
 };
 

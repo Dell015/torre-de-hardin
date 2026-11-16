@@ -3108,3 +3108,13 @@ label.btn { cursor: pointer; }
 .ad-bars { margin-bottom: 1.6rem; }
 .ad-pane .two-up { margin-top: 0.4rem; }
 .pill.completed { background: #e4e1d6; color: var(--ink-2); border-color: #cfcbbd; }
+.ad-listhead { display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin: 2.2rem 0 0.4rem; }
+.ad-listhead .ad-h { margin: 0; }
+.ad-listhead .sel { width: auto; min-width: 12rem; }
+/* unpaid after stay */
+.pill.unpaid { background: #f6dcd8; color: #8a1f1f; border-color: #e3a9a2; font-weight: 700; }
+.ad-pills { display: flex; flex-wrap: wrap; gap: 0.4rem; justify-content: flex-end; }
+.ad-unpaid { border-left: 4px solid #b3261e; background: #fbefed; padding: 0.2rem 1rem 1rem; margin-bottom: 1.6rem; }
+.ad-unpaid .ad-h { display: flex; align-items: center; gap: 0.6rem; margin-top: 0.9rem; color: #8a1f1f; }
+.ad-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 1.4rem; height: 1.4rem; padding: 0 0.4rem; border-radius: 999px; background: #b3261e; color: #fff; font-size: 0.78rem; font-weight: 700; }
+.ad-nav .dot, .ad-menu-list .dot { background: #e0524a; }

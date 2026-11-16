@@ -95,25 +95,25 @@ export const unitLabel = (u: UnitId) =>
 function seeds(): Booking[] {
   const t = today();
   const at = (days: number) => new Date(Date.now() + days * 864e5).toISOString();
-  const pay = (n: number, amount: number, method: string, ref: string): Payment => ({ id: "dp" + n, kind: "payment", amount, method, ref, at: at(-3) });
+  const pay = (n: number, amount: number, method: string, ref: string, ago = -3): Payment => ({ id: "dp" + n, kind: "payment", amount, method, ref, at: at(ago) });
   const mk = (n: number, kind: Booking["kind"], unit: UnitId, from: number, nights: number, name: string, phone: string, guests: number, extra: Partial<Booking> = {}): Booking => ({
     id: `demo-${n}`, ref: `TDJ-D${String(n).padStart(2, "0")}${"XQ"[n % 2]}${"KM"[n % 2]}`, kind, unit,
     start: addDays(t, from), end: addDays(t, from + nights), status: "confirmed", name, phone, guests, createdAt: at(-5 - (n % 6)), ...extra,
   });
   return [
     // arriving today
-    mk(1, "stay", "cabin", 0, 2, "Maria Santos", "09171230001", 2, { payments: [pay(1, 1000, "GCash", "8841 223 019")], notes: "Anniversary — late arrival around 6pm" }),
-    mk(2, "stay", "private", 0, 3, "Reyes Family", "09171230002", 4, { payments: [pay(2, 1500, "Bank transfer", "BDO-55120")] }),
+    mk(1, "stay", "cabin", 0, 2, "Maria Santos", "09171230001", 2, { payments: [pay(1, 1000, "GCash", "8841 223 019", 0)], notes: "Anniversary — late arrival around 6pm" }),
+    mk(2, "stay", "private", 0, 3, "Reyes Family", "09171230002", 4, { payments: [pay(2, 1500, "Bank transfer", "BDO-55120", 0)] }),
     // leaving today
-    mk(3, "stay", "private", -2, 2, "Carlo Dela Cruz", "09171230003", 3, { payments: [pay(3, 1500, "GCash", "7720 114 880")] }),
+    mk(3, "stay", "private", -2, 2, "Carlo Dela Cruz", "09171230003", 3, { payments: [pay(3, 1500, "GCash", "7720 114 880", -1)] }),
     mk(4, "stay", "family", -3, 3, "Garcia Family", "09171230004", 7, { payments: [pay(4, 2000, "GCash", "5532 908 112")] }),
     // staying now
-    mk(5, "stay", "cabin", -1, 3, "Anna & Paolo Tan", "09171230005", 2, { payments: [pay(5, 1000, "Maya", "MY-30021")] }),
-    mk(6, "stay", "private", -1, 2, "Jessa Lim", "09171230006", 2),
+    mk(5, "stay", "cabin", -1, 3, "Anna & Paolo Tan", "09171230005", 2, { checkedInAt: at(-1), payments: [pay(5, 1000, "Maya", "MY-30021")] }),
+    mk(6, "stay", "private", -1, 2, "Jessa Lim", "09171230006", 2, { checkedInAt: at(-1), deposit: 1500 }),
     // waiting for the owner
-    mk(7, "stay", "private", 3, 2, "Joanna Bautista", "09171230007", 4, { status: "pending", proof: "gcash-receipt.jpg", pay: "manual", notes: "Birthday weekend with friends" }),
-    mk(8, "stay", "family", 6, 3, "Marco Villanueva", "09171230008", 8, { status: "pending", pay: "manual", email: "marco.v@email.com" }),
-    mk(9, "event", "hall", 14, 1, "Aileen Cruz", "09171230009", 80, { status: "pending", slot: "evening", eventType: "Birthday / Debut", pay: "manual", notes: "18th birthday, 80 guests, own caterer" }),
+    mk(7, "stay", "private", 3, 2, "Joanna Bautista", "09171230007", 4, { status: "pending", createdAt: at(-0.12), proof: "gcash-receipt.jpg", pay: "manual", notes: "Birthday weekend with friends", deposit: 1500 }),
+    mk(8, "stay", "family", 6, 3, "Marco Villanueva", "09171230008", 8, { status: "pending", createdAt: at(-0.2), pay: "manual", email: "marco.v@email.com", deposit: 2000 }),
+    mk(9, "event", "hall", 14, 1, "Aileen Cruz", "09171230009", 80, { status: "pending", createdAt: at(-0.5), slot: "evening", eventType: "Birthday / Debut", pay: "manual", notes: "18th birthday, 80 guests, own caterer", deposit: 1500 }),
     // upcoming, confirmed
     mk(10, "stay", "cabin", 4, 2, "Rico Mendoza", "09171230010", 2, { payments: [pay(10, 1000, "GCash", "2210 556 773")] }),
     mk(11, "stay", "private", 4, 2, "Lopez Barkada", "09171230011", 4),
@@ -133,19 +133,19 @@ function pastSeeds(): Booking[] {
   const dayAt = (off: number, h = 10) => new Date(new Date(addDays(t, off) + "T00:00:00").getTime() + h * 36e5).toISOString();
   const RATE: Record<string, number> = { private: 4500, family: 7500, cabin: 3000, hall: 12000, estate: 60000 };
   const DEP: Record<string, number> = { private: 1500, family: 2000, cabin: 1000, hall: 1500, estate: 10000 };
-  type Row = [string, UnitId, number, number, number, string, string, ("done" | "cancel" | "refund" | "declined")?, string?];
+  type Row = [string, UnitId, number, number, number, string, string, ("done" | "cancel" | "refund" | "declined" | "unpaid" | "nopay")?, string?];
   // name, unit, start (days ago, negative), nights, guests, deposit method, balance method, outcome, voucher
   const rows: Row[] = [
     ["Villanueva Family", "family", -4, 2, 8, "GCash", "Cash"],
     ["Mark & Joy Dizon", "cabin", -6, 2, 2, "Maya", "GCash"],
-    ["Tolentino Barkada", "private", -9, 3, 4, "GCash", "Cash"],
+    ["Tolentino Barkada", "private", -9, 3, 4, "GCash", "Cash", "unpaid"],
     ["Engr. Ramos", "private", -12, 2, 3, "Bank transfer", "Bank transfer"],
     ["Cruz-Mercado Debut", "hall", -15, 1, 90, "Bank transfer", "Cash"],
     ["Liza Fernandez", "cabin", -18, 3, 2, "GCash", "GCash", "done", "WELCOME10"],
-    ["Pascual Reunion", "family", -23, 3, 8, "Bank transfer", "Cash"],
+    ["Pascual Reunion", "family", -23, 3, 8, "Bank transfer", "Cash", "unpaid"],
     ["Ana Soriano", "cabin", -27, 2, 2, "GCash", "GCash", "cancel"],
     ["Tan-Uy Wedding", "estate", -34, 1, 140, "Bank transfer", "Bank transfer"],
-    ["Rodel Santiago", "private", -41, 2, 4, "Maya", "Cash"],
+    ["Rodel Santiago", "private", -41, 2, 4, "Maya", "Cash", "nopay"],
     ["Gonzales Family", "family", -48, 2, 7, "GCash", "GCash", "refund"],
     ["Camille Reyes", "cabin", -55, 2, 2, "GCash", "Cash"],
     ["Bernardo Christening", "hall", -63, 1, 50, "GCash", "Cash"],
@@ -180,9 +180,18 @@ function pastSeeds(): Booking[] {
     } as Booking;
     if (event) { (b as any).slot = unit === "hall" ? "whole" : "whole"; (b as any).eventType = unit === "estate" ? "Wedding / Company event" : "Celebration"; }
     if (voucher) { b.voucher = voucher; b.discount = discount; b.discountLabel = "10% off"; }
-    if (outcome === "declined") { b.declineReason = "Dates no longer available"; }
+    if (outcome === "nopay") {
+      b.checkedInAt = dayAt(from, 14);
+      b.checkedOutAt = dayAt(from + stays, 11);
+      b.payOk = true; // arrived and left without paying anything
+    } else if (outcome === "declined") { b.declineReason = "Dates no longer available"; }
     else {
       const pays: Payment[] = [{ id: `pp${n}a`, kind: "payment", amount: dep, method: m1, ref: `REF-${1000 + n * 37}`, at: dayAt(booked + 1, 15) }];
+      if (outcome === "unpaid") {
+        b.checkedInAt = dayAt(from, 14);
+        b.checkedOutAt = dayAt(from + stays, 11);
+        b.payOk = true; // deposit only; the balance was never collected
+      }
       if (outcome === "done") {
         pays.push({ id: `pp${n}b`, kind: "payment", amount: total - dep, method: m2, note: "Balance on arrival", at: dayAt(from, 14) });
         b.checkedInAt = dayAt(from, 14);
@@ -199,6 +208,57 @@ function pastSeeds(): Booking[] {
     out.push(b);
   });
   return out;
+}
+
+/* ---------- One sample for every situation the admin has to handle ---------- */
+function scenarioSeeds(): Booking[] {
+  const t = today();
+  const at = (days: number) => new Date(Date.now() + days * 864e5).toISOString();
+  const pay = (id: string, amount: number, method: string, ref: string, ago: number): Payment => ({ id, kind: "payment", amount, method, ref, at: at(ago) });
+  let n = 0;
+  const mk = (kind: Booking["kind"], unit: UnitId, from: number, nights: number, name: string, guests: number, extra: Partial<Booking> = {}): Booking => {
+    n += 1;
+    return {
+      id: `scn-${n}`, ref: `TDJ-S${String(n).padStart(2, "0")}${"QX"[n % 2]}${"KM"[n % 2]}`, kind, unit, start: addDays(t, from), end: addDays(t, from + nights),
+      status: "confirmed", name, phone: "0918" + String(4440000 + n * 211).slice(0, 7), guests, createdAt: at(-4), ...extra,
+    } as Booking;
+  };
+  const block = (unit: UnitId, from: number, nights: number, name: string, tag: Booking["tag"], extra: Partial<Booking> = {}): Booking => {
+    n += 1;
+    return { id: `scn-${n}`, ref: "BLOCK", kind: "block", unit, start: addDays(t, from), end: addDays(t, from + nights), status: "confirmed", name, phone: "", guests: 0, tag, createdAt: at(-9), ...extra } as Booking;
+  };
+  return [
+    // waiting: competing requests for the same dates (one has paid, one has not)
+    mk("stay", "family", 7, 2, "Dela Peña Family", 7, { status: "pending", createdAt: at(-0.08), pay: "manual", deposit: 2000, notes: "Sent the downpayment already", payments: [pay("sp1", 2000, "GCash", "6612 400 118", -0.07)] }),
+    // waiting: clashes with a confirmed booking (can't be approved)
+    mk("event", "hall", 20, 1, "Lim Reception", 70, { status: "pending", createdAt: at(-0.05), slot: "whole", eventType: "Wedding reception", pay: "manual", deposit: 1500 }),
+    // waiting: nobody answered for days, so the hold expired
+    mk("stay", "cabin", 12, 2, "Sampaguita Tours", 2, { status: "pending", createdAt: at(-4), pay: "manual", deposit: 1000, notes: "Travel agency, asked for a quote first" }),
+    // guest asked to cancel (needs an answer)
+    mk("stay", "cabin", 8, 2, "Nora Villareal", 2, { deposit: 1000, createdAt: at(-9), payments: [pay("sp2", 1000, "GCash", "4410 220 987", -8)], cancelRequest: { at: at(-0.1), reason: "Family emergency, we can't travel anymore.", state: "requested" } as any }),
+    // guest asked to cancel and the owner said no
+    mk("stay", "private", 11, 2, "Tess Alvarado", 4, { deposit: 1500, createdAt: at(-12), payments: [pay("sp3", 1500, "Bank transfer", "BPI-11820", -11)], cancelRequest: { at: at(-2), reason: "Change of schedule.", state: "rejected", reply: "Deposit is non-refundable within 7 days of arrival" } as any }),
+    // confirmed, paid in full ahead
+    mk("stay", "private", 30, 2, "Chua Family", 4, { total: 9000, deposit: 1500, createdAt: at(-14), payments: [pay("sp4", 1500, "GCash", "2290 118 440", -13), pay("sp5", 7500, "Bank transfer", "BDO-77310", -3)] }),
+    // confirmed with a voucher
+    mk("stay", "cabin", 18, 2, "Kumare Group", 2, { voucher: "KUMARE500", discount: 500, discountLabel: "PHP 500 off", total: 5500, deposit: 1000, createdAt: at(-6), payments: [pay("sp6", 1000, "Maya", "MY-48812", -5)] }),
+    // confirmed, nothing paid yet
+    mk("stay", "private", 14, 2, "Vergara Couple", 2, { deposit: 1500, createdAt: at(-3), pay: "manual" }),
+    // left yesterday, checked out, fully paid
+    mk("stay", "cabin", -3, 2, "Wilson Couple", 2, { total: 6000, deposit: 1000, createdAt: at(-15), checkedInAt: at(-3), checkedOutAt: at(-1), payOk: true, payments: [pay("sp7", 1000, "GCash", "9021 556 013", -14), pay("sp8", 5000, "Cash", "", -3)] }),
+    // left early (booked until later, freed the room)
+    mk("stay", "private", -4, 3, "Bautista Trio", 3, { total: 13500, deposit: 1500, createdAt: at(-16), checkedInAt: at(-4), checkedOutAt: at(-1), earlyFrom: addDays(t, 2), payOk: true, payments: [pay("sp9", 1500, "GCash", "7783 004 221", -15), pay("sp10", 7500, "Cash", "", -4)] }),
+    // no-show, cancelled by the owner
+    mk("stay", "cabin", -5, 2, "Soriano Couple", 2, { status: "cancelled", deposit: 1000, createdAt: at(-18), cancelledAt: at(-4), cancelledBy: "owner", cancelReason: "No-show", payments: [pay("sp11", 1000, "GCash", "3345 009 118", -17)] }),
+    // recently declined
+    mk("stay", "family", 2, 2, "Gil Family", 6, { status: "declined", createdAt: at(-3), decidedAt: at(-2), declineReason: "Receipt not received in time", pay: "manual" }),
+    // entries only the manager can make
+    mk("stay", "private", 15, 2, "Mayor's family (VIP)", 5, { manual: true, createdAt: at(-5), notes: "Complimentary, arranged by the owner" }),
+    block("estate", 40, 4, "Holy Week maintenance", "closure"),
+    block("estate", 28, 1, "Owner's anniversary", "owner"),
+    block("cabin", 5, 2, "Aircon repair, Cabin", "maintenance"),
+    block("estate", -20, 3, "Typhoon closure", "closure"),
+  ];
 }
 
 /* ---------- Store ---------- */
@@ -222,14 +282,11 @@ export function useBookings() {
   const [mine, setMine] = useState<Booking[]>([]);
   useEffect(() => {
     try {
-      if (!localStorage.getItem(SEEDED)) {
-        localStorage.setItem(SEEDED, "1");
-        localStorage.setItem(KEY, JSON.stringify([...load(), ...seeds()]));
-      }
-      if (!localStorage.getItem("tdj.seeded.past.v1")) {
-        localStorage.setItem("tdj.seeded.past.v1", "1");
-        const have = new Set(load().map((x) => x.id));
-        localStorage.setItem(KEY, JSON.stringify([...load(), ...pastSeeds().filter((x) => !have.has(x.id))]));
+      if (!localStorage.getItem("tdj.seeded.v4")) {
+        localStorage.setItem("tdj.seeded.v4", "1");
+        // replace any older sample data with the full set (real bookings are left alone)
+        const keep = load().filter((x) => !/^(demo|past|scn)-/.test(String(x.id)));
+        localStorage.setItem(KEY, JSON.stringify([...keep, ...seeds(), ...pastSeeds(), ...scenarioSeeds()]));
       }
     } catch {}
     setMine(load());

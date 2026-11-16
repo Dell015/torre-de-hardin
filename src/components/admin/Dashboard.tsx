@@ -3,7 +3,7 @@ import { useMemo, useState } from "react";
 import { addDays, fmtLong, iso, pad, parse, today, unitLabel, type Booking } from "@/lib/bookings";
 import { STAYS } from "@/lib/data";
 import { getSettings } from "@/lib/settings";
-import { Pill, StatusPill, UNIT_CODE, dateLine, title } from "./shared";
+import { Pill, StatusPill, UNIT_CODE, balanceOf, dateLine, title, unpaidAfter } from "./shared";
 import { logAction } from "@/lib/adminlog";
 import { peso } from "@/lib/bookings";
 
@@ -117,6 +117,9 @@ export default function Dashboard({ all, open, go, onAdd, update }: { all: Booki
   const events = all.filter((b) => live(b) && b.kind === "event" && b.start === t);
   const next30 = all.filter((b) => live(b) && b.kind !== "block" && b.start >= t && b.start <= addDays(t, 30)).length;
 
+  const unpaid = all.filter((b) => unpaidAfter(b)).sort((x, y) => (x.end < y.end ? 1 : -1));
+  const unpaidTotal = unpaid.reduce((n, b) => n + balanceOf(b), 0);
+
   const cells = useMemo(() => {
     const first = parse(month);
     const lead = first.getDay();
@@ -161,6 +164,26 @@ export default function Dashboard({ all, open, go, onAdd, update }: { all: Booki
 
       <div className="ad-cols">
         <section>
+          {unpaid.length > 0 && (
+            <div className="ad-unpaid">
+              <h3 className="ad-h">Unpaid after the stay <span className="ad-badge">{unpaid.length}</span></h3>
+              <p className="small muted">These guests already left but still owe a balance. Total: <b>PHP {unpaidTotal.toLocaleString("en-PH")}</b>. Open one and record the payment on the Payment step.</p>
+              <ul className="ad-mini">
+                {unpaid.slice(0, 8).map((b) => (
+                  <li key={"u" + b.id}>
+                    <button onClick={() => open(b.id)}>
+                      <span>
+                        <b>{title(b)}</b>
+                        <small>{unitLabel(b.unit)} · {dateLine(b)}</small>
+                      </span>
+                      <span className="pill unpaid">{(b.payments || []).length ? "Owes" : "Unpaid"} PHP {balanceOf(b).toLocaleString("en-PH")}</span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+              {unpaid.length > 8 && <button className="link small" onClick={() => go("book:completed")}><span>See all {unpaid.length} →</span></button>}
+            </div>
+          )}
           <h3 className="ad-h">Needs your answer</h3>
           {cancelReqs.length > 0 && (
             <ul className="ad-mini cancel">

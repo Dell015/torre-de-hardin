@@ -18,19 +18,25 @@ export interface Voucher {
 }
 
 const KEY = "tdj.vouchers.v1";
-const SEED = "tdj.vouchers.seeded.v1";
+const SEED = "tdj.vouchers.seeded.v2";
 const read = (): Voucher[] => {
   try {
     if (!localStorage.getItem(SEED)) {
-      // first visit: a couple of sample vouchers so the page shows how it works
+      // first visit: sample vouchers covering each situation (live, limited, expired, switched off)
       localStorage.setItem(SEED, "1");
-      if (!localStorage.getItem(KEY)) {
-        const now = new Date().toISOString();
-        localStorage.setItem(KEY, JSON.stringify([
-          { id: "v-seed1", code: "WELCOME10", kind: "percent", value: 10, appliesTo: "all", active: true, note: "First-time guests", createdAt: now },
-          { id: "v-seed2", code: "KUMARE500", kind: "fixed", value: 500, appliesTo: "stay", maxUses: 5, active: true, note: "For the owner's friends", createdAt: now },
-        ]));
-      }
+      const now = new Date().toISOString();
+      const d = (n: number) => new Date(Date.now() + n * 864e5).toISOString().slice(0, 10);
+      const have = JSON.parse(localStorage.getItem(KEY) || "[]") as Voucher[];
+      const sample: Voucher[] = [
+        { id: "v-seed1", code: "WELCOME10", kind: "percent", value: 10, appliesTo: "all", active: true, note: "First-time guests", createdAt: now },
+        { id: "v-seed2", code: "KUMARE500", kind: "fixed", value: 500, appliesTo: "stay", maxUses: 5, active: true, note: "For the owner's friends", createdAt: now },
+        { id: "v-seed3", code: "SUMMER15", kind: "percent", value: 15, appliesTo: "stay", from: d(-120), until: d(-60), active: true, note: "Summer promo (ended)", createdAt: now },
+        { id: "v-seed4", code: "STAFF20", kind: "percent", value: 20, appliesTo: "all", active: false, note: "Staff and family. Switched off for now", createdAt: now },
+        { id: "v-seed5", code: "ONEFORYOU", kind: "fixed", value: 1000, appliesTo: "event", maxUses: 1, active: true, note: "One-time gift for an event guest", createdAt: now },
+        { id: "v-seed6", code: "BDAY5", kind: "percent", value: 5, appliesTo: "all", from: d(-5), until: d(60), active: true, note: "Birthday month", createdAt: now },
+      ];
+      const codes = new Set(have.map((v) => v.code));
+      localStorage.setItem(KEY, JSON.stringify([...have, ...sample.filter((v) => !codes.has(v.code))]));
     }
     return JSON.parse(localStorage.getItem(KEY) || "[]");
   } catch {

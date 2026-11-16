@@ -16,6 +16,7 @@ import Audit from "./Audit";
 import Income from "./Income";
 import Manager from "./Manager";
 import { unitLabel, type Booking } from "@/lib/bookings";
+import { unpaidAfter } from "./shared";
 
 const TABS = [
   ["dash", "Overview"],
@@ -78,6 +79,7 @@ export default function AdminApp() {
   const [ask, setAsk] = useState(false);
   const [undoAsk, setUndoAskRaw] = useState(false);
   const setUndoAsk = (v: boolean) => { if (v) setToast(null); setUndoAskRaw(v); };
+  const owing = base.mine.some((b) => unpaidAfter(b));
   const waiting = base.mine.some((b) => b.status === "pending" || b.cancelRequest?.state === "requested");
   const [filter, setFilter] = useState("all");
   const [openId, setOpenId] = useState<string | null>(null);
@@ -125,7 +127,7 @@ export default function AdminApp() {
           <button key={k} className={(tab === k ? "on " : "") + (PRIMARY.includes(k) ? "pri" : "sec")} onClick={() => { go(k); setMore(false); }}>
             <span className="ad-ic" aria-hidden>{ICONS[k]}</span>
             <span className="ad-nl">{l}</span>
-            {k === "book" && waiting && <i className="dot" />}
+            {((k === "book" && waiting) || (k === "dash" && owing)) && <i className="dot" />}
           </button>
         ))}
         <div className="ad-nav-foot">
@@ -178,7 +180,7 @@ export default function AdminApp() {
               <button key={k} className={tab === k ? "on" : ""} onClick={() => { go(k); setMore(false); }}>
                 <em>{String(n + 1).padStart(2, "0")}</em>
                 <span>{l}</span>
-                {k === "book" && waiting && <i className="dot" />}
+                {((k === "book" && waiting) || (k === "dash" && owing)) && <i className="dot" />}
               </button>
             ))}
           </div>

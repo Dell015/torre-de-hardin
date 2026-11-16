@@ -22,6 +22,15 @@ export function phaseOf(b: { status: string; start: string; end: string; checked
   if (b.checkedInAt || (b.start <= t && t < b.end)) return b.checkedInAt ? "inhouse" : "upcoming";
   return "upcoming";
 }
+/** Money still owed on a booking: the estimated total (or the deposit if there is no total) minus what was received. */
+export function balanceOf(b: { total?: number; deposit?: number; payments?: { kind: string; amount: number }[]; status: string; kind?: string }): number {
+  const paid = (b.payments || []).reduce((n, p) => n + (p.kind === "refund" ? -p.amount : p.amount), 0);
+  const target = b.total || b.deposit || 0;
+  return Math.max(0, target - paid);
+}
+/** A finished stay or event that was never fully paid. */
+export const unpaidAfter = (b: Parameters<typeof phaseOf>[0] & Parameters<typeof balanceOf>[0]) => b.kind !== "block" && phaseOf(b) === "completed" && balanceOf(b) > 0;
+
 export function StatusPill({ b }: { b: Parameters<typeof phaseOf>[0] }) {
   const ph = phaseOf(b);
   if (ph === "completed") return <span className="pill completed">Completed</span>;

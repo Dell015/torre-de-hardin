@@ -8,7 +8,7 @@ import { logAction } from "@/lib/adminlog";
 import { exportBookings } from "@/lib/export";
 import { getSettings } from "@/lib/settings";
 import { RESORT } from "@/lib/data";
-import { ConfirmLink, Pill, StatusPill, phaseOf, STATUS, TEMPLATES, copy, dateLine, template, title, type TemplateId } from "./shared";
+import { ConfirmLink, Pill, StatusPill, balanceOf, phaseOf, unpaidAfter, STATUS, TEMPLATES, copy, dateLine, template, title, type TemplateId } from "./shared";
 
 type Api = {
   all: Booking[];
@@ -28,7 +28,7 @@ export default function Bookings({ api, initialFilter, openId, onClose, onSave }
 
   const guests = api.all.filter((b) => b.kind !== "block");
   const match = (b: Booking, f: string) =>
-    f === "all" ? true : f === "cancelreq" ? b.cancelRequest?.state === "requested" : f === "completed" ? phaseOf(b) === "completed" : f === "confirmed" ? b.status === "confirmed" && phaseOf(b) !== "completed" : b.status === f;
+    f === "all" ? true : f === "cancelreq" ? b.cancelRequest?.state === "requested" : f === "unpaid" ? unpaidAfter(b) : f === "completed" ? phaseOf(b) === "completed" : f === "confirmed" ? b.status === "confirmed" && phaseOf(b) !== "completed" : b.status === f;
   const list = useMemo(() => {
     const n = q.trim().toLowerCase();
     return guests
@@ -56,7 +56,7 @@ export default function Bookings({ api, initialFilter, openId, onClose, onSave }
       </div>
       <div className="ad-filter">
         <Select value={filter} onChange={(e) => setFilter(e.target.value)} aria-label="Show">
-          {[["all", "All bookings"], ["pending", "Waiting for you"], ["cancelreq", "Cancellation requests"], ["confirmed", "Confirmed (upcoming)"], ["completed", "Completed (past)"], ["declined", "Declined"], ["cancelled", "Cancelled"]].map(([f, l]) => (
+          {[["all", "All bookings"], ["pending", "Waiting for you"], ["cancelreq", "Cancellation requests"], ["confirmed", "Confirmed (upcoming)"], ["completed", "Completed (past)"], ["unpaid", "Unpaid after stay"], ["declined", "Declined"], ["cancelled", "Cancelled"]].map(([f, l]) => (
             <option key={f} value={f}>
               {l} ({counts(f)})
             </option>
@@ -81,7 +81,7 @@ export default function Bookings({ api, initialFilter, openId, onClose, onSave }
                     {unitLabel(b.unit)} · {dateLine(b)}
                   </small>
                 </span>
-                {b.cancelRequest?.state === "requested" ? <span className="pill request">Cancel request</span> : <StatusPill b={b} />}
+                {b.cancelRequest?.state === "requested" ? <span className="pill request">Cancel request</span> : <span className="ad-pills"><StatusPill b={b} />{unpaidAfter(b) && <span className="pill unpaid">Unpaid PHP {balanceOf(b).toLocaleString("en-PH")}</span>}</span>}
               </button>
             </li>
           ))}
@@ -123,6 +123,8 @@ function Drawer({ b, api, close, onSave }: { b: Booking; api: Api; close: () => 
   const pays = b.payments || [];
   const paidSum = pays.reduce((a, p) => a + (p.kind === "refund" ? -p.amount : p.amount), 0);
   const phase = phaseOf(b);
+  const canEdit = isBlock || phase === "pending" || phase === "upcoming";
+  const canDelete = isBlock || (phase !== "completed" && !(b.payments || []).length);
   const clashes = !isBlock && !demo && b.status === "pending" ? conflictsFor(b as any, api.all) : [];
   const hard = clashes.filter((c) => c.status === "confirmed");
   const soft = clashes.filter((c) => c.status === "pending");
@@ -257,6 +259,7 @@ function Drawer({ b, api, close, onSave }: { b: Booking; api: Api; close: () => 
         <div className="ad-body">
           {show("booking") && <>
           {!isBlock && <StatusPill b={b} />}
+          {!isBlock && unpaidAfter(b) && <div className="ad-review"><h4>Balance not paid</h4><ul><li className="bad">The guest has left but still owes <b>PHP {balanceOf(b).toLocaleString("en-PH")}</b>. Record the payment on the “2 · Payment” step once you receive it.</li></ul></div>}
           {!isBlock && phase === "completed" && <p className="ad-next">This stay is finished, so there is nothing left to approve or cancel. You can still record a late payment or send a thank-you message.</p>}
           {!isBlock && phase === "inhouse" && <p className="ad-next">The guest is here now. Mark early departures from the Overview page.</p>}
           {!isBlock && !demo && b.status === "pending" && (
@@ -555,12 +558,16 @@ function Drawer({ b, api, close, onSave }: { b: Booking; api: Api; close: () => 
                     }}
                   />
                 </>
-              ) : (
+              ) : canEdit ? (
                 <div className="ad-act">
                   <button className="btn" onClick={() => setEditing(true)}>
                     <span>{isBlock ? "Change dates / details" : "Change dates, room or details"}</span>
                   </button>
                 </div>
+              ) : (
+                <p className="muted small">
+                  {phase === "completed" ? "This stay is finished, so its dates and room are locked." : phase === "inhouse" ? "The guest is staying now. Dates are locked; mark an early departure from the Overview page." : "Dates and room can't be changed on a " + b.status + " booking."}
+                </p>
               )}
             </>
           )}
@@ -590,7 +597,10 @@ function Drawer({ b, api, close, onSave }: { b: Booking; api: Api; close: () => 
           </div>
           </>)}
 
-          {show("more") && !demo && (
+          {show("more") && !demo && !isBlock && !canDelete && (
+            <p className="muted small">{phase === "completed" ? "Finished stays are kept as records for your income reports, so they can't be deleted." : "It has payments recorded, so it can't be deleted. Cancel it from the Review step instead."}</p>
+          )}
+          {show("more") && !demo && canDelete && (
             <div className="ad-del">
               <ConfirmLink label={isBlock ? "Reopen these dates (delete entry)" : "Delete this booking"} yes={isBlock ? "Yes, reopen" : "Yes, delete it"} onConfirm={del} />
             </div>

@@ -4,6 +4,7 @@ import Select from "./Select";
 import { addDays, today, unitLabel, type Booking } from "@/lib/bookings";
 import { exportIncome, type MoneyRow } from "@/lib/export";
 import { logAction } from "@/lib/adminlog";
+import { balanceOf, unpaidAfter } from "./shared";
 
 const php = (n: number) => `${n < 0 ? "-" : ""}PHP ${Math.abs(Math.round(n)).toLocaleString("en-PH")}`;
 const day = (iso: string) => iso.slice(0, 10);
@@ -18,6 +19,12 @@ export default function Income({ all, open }: { all: Booking[]; open: (id: strin
 
   const [a, b, label] = useMemo((): [string, string, string] => {
     const y = t.slice(0, 4), m = t.slice(0, 7);
+    if (range === "today") return [t, t, "today"];
+    if (range === "week") {
+      const d = new Date(t + "T00:00:00");
+      const mon = addDays(t, -((d.getDay() + 6) % 7));
+      return [mon, addDays(mon, 6), "this-week"];
+    }
     if (range === "month") return [m + "-01", m + "-31", "this-month"];
     if (range === "last") {
       const d = new Date(Number(y), Number(t.slice(5, 7)) - 2, 1);
@@ -72,8 +79,12 @@ export default function Income({ all, open }: { all: Booking[]; open: (id: strin
 
   // money still expected: confirmed bookings whose deposit isn't fully in yet
   const owed = all
-    .filter((bk) => bk.kind !== "block" && bk.status === "confirmed" && bk.deposit)
-    .map((bk) => ({ bk, left: (bk.deposit || 0) - (bk.payments || []).reduce((n, p) => n + (p.kind === "refund" ? -p.amount : p.amount), 0) }))
+    .filter((bk) => bk.kind !== "block" && bk.status === "confirmed")
+    .map((bk) => {
+      const paid = (bk.payments || []).reduce((n, p) => n + (p.kind === "refund" ? -p.amount : p.amount), 0);
+      const after = unpaidAfter(bk);
+      return { bk, after, left: after ? balanceOf(bk) : Math.max(0, (bk.deposit || 0) - paid) };
+    })
     .filter((x) => x.left > 0);
   const owedTotal = owed.reduce((n, x) => n + x.left, 0);
 
@@ -95,6 +106,8 @@ export default function Income({ all, open }: { all: Booking[]; open: (id: strin
         <label>
           <span className="label">Show income for</span>
           <Select value={range} onChange={(e) => setRange(e.target.value)}>
+            <option value="today">Today</option>
+            <option value="week">This week</option>
             <option value="month">This month</option>
             <option value="last">Last month</option>
             <option value="30">Last 30 days</option>
@@ -115,7 +128,7 @@ export default function Income({ all, open }: { all: Booking[]; open: (id: strin
         <div className="big"><span>Net income</span><b>{php(net)}</b></div>
         <div><span>Payments received</span><b>{php(received)}</b></div>
         <div><span>Refunds given</span><b>{php(refunded)}</b></div>
-        <div><span>Still to collect</span><b>{php(owedTotal)}</b><small>{owed.length} confirmed booking{owed.length === 1 ? "" : "s"} with deposit unpaid</small></div>
+        <div><span>Still to collect</span><b>{php(owedTotal)}</b><small>{owed.length} booking{owed.length === 1 ? "" : "s"} with money owed</small></div>
       </div>
 
       <h3 className="ad-h">Last 6 months</h3>
@@ -144,7 +157,19 @@ export default function Income({ all, open }: { all: Booking[]; open: (id: strin
         </div>
       </div>
 
-      <h3 className="ad-h">Every payment · {rows.length}</h3>
+      <div className="ad-listhead">
+        <h3 className="ad-h">Every payment · {rows.length}</h3>
+        <Select value={range} onChange={(e) => setRange(e.target.value)} aria-label="Show payments for">
+          <option value="today">Today</option>
+          <option value="week">This week</option>
+          <option value="month">This month</option>
+          <option value="last">Last month</option>
+          <option value="30">Last 30 days</option>
+          <option value="year">This year</option>
+          <option value="all">All time</option>
+          <option value="custom">Pick dates</option>
+        </Select>
+      </div>
       {rows.length === 0 ? (
         <p className="muted">Nothing recorded for {range === "all" ? "this account yet" : "this period"}. Payments are recorded on each booking, under the Payment step.</p>
       ) : (
@@ -168,12 +193,12 @@ export default function Income({ all, open }: { all: Booking[]; open: (id: strin
 
       {owed.length > 0 && (
         <>
-          <h3 className="ad-h">Deposits still to collect</h3>
+          <h3 className="ad-h">Money still to collect</h3>
           <ul className="ad-pl">
-            {owed.map(({ bk, left }) => (
+            {owed.map(({ bk, left, after }) => (
               <li key={bk.id}>
                 <button onClick={() => open(bk.id)}>
-                  <span><b>{bk.name}</b><small>{unitLabel(bk.unit)} · {bk.ref}</small></span>
+                  <span><b>{bk.name}</b><small>{unitLabel(bk.unit)} · {bk.ref} · {after ? "stay finished, balance unpaid" : "deposit not yet received"}</small></span>
                   <b>{php(left)}</b>
                 </button>
               </li>

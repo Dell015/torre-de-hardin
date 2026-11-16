@@ -4,6 +4,7 @@ import { gsap, initGsap, lockScroll } from "@/lib/motion";
 import { useBooking } from "./BookingProvider";
 import Calendar from "./Calendar";
 import { STAYS, EVENT_TYPES, RESORT } from "@/lib/data";
+import { useSettings, rateOf } from "@/lib/settings";
 import {
   type Booking,
   type Slot,
@@ -63,6 +64,8 @@ function SampleQR() {
 export default function BookingSheet() {
   const { open, preset, closeBooking } = useBooking();
   const { all, add } = useBookings();
+  const { s: st } = useSettings();
+  const [proofData, setProofData] = useState("");
 
   const [mounted, setMounted] = useState(false);
   const panel = useRef<HTMLDivElement>(null);
@@ -154,7 +157,7 @@ export default function BookingSheet() {
     setUnit("");
     setEventDate("");
     setD({ name: "", phone: "", email: "", notes: "" });
-    setProof("");
+    setProof(""); setProofData("");
     setPay("manual");
     setDone(null);
     setTouched(false);
@@ -232,6 +235,31 @@ export default function BookingSheet() {
     setStep((s) => s + 1);
   }
 
+  const estimate =
+    mode === "stay"
+      ? (rateOf(unit as string) || 0) * (nights || 0)
+      : rateOf(exclusive ? "estate" : "hall");
+
+  function onProof(f?: File | null) {
+    setProof(f?.name || "");
+    setProofData("");
+    if (!f || !f.type.startsWith("image/")) return;
+    const rd = new FileReader();
+    rd.onload = () => {
+      const im = new Image();
+      im.onload = () => {
+        const k = Math.min(1, 900 / Math.max(im.width, im.height));
+        const c = document.createElement("canvas");
+        c.width = Math.round(im.width * k);
+        c.height = Math.round(im.height * k);
+        c.getContext("2d")!.drawImage(im, 0, 0, c.width, c.height);
+        setProofData(c.toDataURL("image/jpeg", 0.7));
+      };
+      im.src = String(rd.result);
+    };
+    rd.readAsDataURL(f);
+  }
+
   function submit() {
     if (busy) return;
     setBusy(true);
@@ -255,6 +283,8 @@ export default function BookingSheet() {
       notes: d.notes.trim(),
       pay,
       proof: proof || undefined,
+      proofData: proofData || undefined,
+      total: estimate || undefined,
       createdAt: new Date().toISOString(),
     };
     setTimeout(
@@ -397,11 +427,11 @@ export default function BookingSheet() {
                 <>
                   <div className="sh-in dates-line">
                     <div>
-                      <span className="label">Arrive · from {RESORT.checkIn}</span>
+                      <span className="label">Arrive · from {st.checkIn}</span>
                       <b>{start ? fmtLong(start) : "—"}</b>
                     </div>
                     <div>
-                      <span className="label">Depart · by {RESORT.checkOut}</span>
+                      <span className="label">Depart · by {st.checkOut}</span>
                       <b>{end ? fmtLong(end) : "—"}</b>
                     </div>
                   </div>
@@ -449,7 +479,7 @@ export default function BookingSheet() {
                                 <small>{u.note}</small>
                               </span>
                               <span className="unit-side">
-                                <small>{peso()} / night</small>
+                                <small>{peso(rateOf(u.id))} / night</small>
                                 <em>
                                   {!nights
                                     ? "Pick dates"
@@ -628,14 +658,14 @@ export default function BookingSheet() {
                 <div>
                   <span className="label">Estimate</span>
                   <p>
-                    <b>{peso()}</b>
+                    <b>{peso(estimate)}</b>
                     <br />
                     <small>Rates are confirmed by the owners.</small>
                   </p>
                 </div>
               </div>
 
-              <span className="label sh-in">Reservation deposit — {peso()}</span>
+              <span className="label sh-in">Reservation deposit — {peso(st.deposit)}</span>
               <div className="pays sh-in">
                 <button className={"pay" + (pay === "manual" ? " on" : "")} onClick={() => setPay("manual")}>
                   <span className="pay-mark">A</span>
@@ -657,19 +687,25 @@ export default function BookingSheet() {
               {pay === "manual" ? (
                 <div className="pay-body sh-in">
                   <div className="qrbox">
-                    <SampleQR />
-                    <small>Sample QR</small>
+                    {st.pay.qr ? <img src={st.pay.qr} alt="Payment QR" style={{ width: "100%", height: "auto" }} /> : <SampleQR />}
+                    <small>{st.pay.qr ? "Scan to pay" : "Sample QR"}</small>
                   </div>
                   <div>
                     <p className="small">
-                      GCash · <b>09xx xxx xxxx</b>
+                      {st.pay.method} · <b>{st.pay.number || "09xx xxx xxxx"}</b>
                       <br />
-                      Account name · <b>Torre de Jardin</b>
+                      Account name · <b>{st.pay.accountName}</b>
+                      {st.pay.bank && (
+                        <>
+                          <br />
+                          Bank · <b>{st.pay.bank}</b>
+                        </>
+                      )}
                       <br />
-                      <span className="muted">The owners' real account details will appear here.</span>
+                      <span className="muted">{st.pay.note || (st.pay.number ? "Send the deposit, then upload your receipt." : "The owners' real account details will appear here.")}</span>
                     </p>
                     <label className="upload">
-                      <input type="file" accept="image/*,.pdf" onChange={(e) => setProof(e.target.files?.[0]?.name || "")} />
+                      <input type="file" accept="image/*,.pdf" onChange={(e) => onProof(e.target.files?.[0])} />
                       <span>{proof ? "✓ " + proof : "Upload receipt (optional now)"}</span>
                     </label>
                   </div>

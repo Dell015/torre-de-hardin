@@ -1,10 +1,12 @@
 "use client";
+import { useSettings } from "@/lib/settings";
 import { useState } from "react";
 import { AMENITIES, POLICIES, RESORT } from "@/lib/data";
 import Img from "./Img";
 import { useBooking } from "./BookingProvider";
 
 export default function Visit() {
+  const { s: st } = useSettings();
   const { openBooking } = useBooking();
   const [open, setOpen] = useState<number | null>(0);
   return (
@@ -37,11 +39,11 @@ export default function Visit() {
             <div className="times" data-reveal>
               <div>
                 <span className="label">Check-in</span>
-                <b>{RESORT.checkIn}</b>
+                <b>{st.checkIn}</b>
               </div>
               <div>
                 <span className="label">Check-out</span>
-                <b>{RESORT.checkOut}</b>
+                <b>{st.checkOut}</b>
               </div>
             </div>
 

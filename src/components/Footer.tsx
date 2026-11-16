@@ -1,6 +1,9 @@
+"use client";
+import { useSettings } from "@/lib/settings";
 import { RESORT } from "@/lib/data";
 
 export default function Footer() {
+  const { s: st } = useSettings();
   return (
     <footer className="footer" id="footer" data-dark>
       <div className="wrap">
@@ -39,9 +42,9 @@ export default function Footer() {
           <div>
             <span className="label">Hours</span>
             <p>
-              Check-in {RESORT.checkIn}
+              Check-in {st.checkIn}
               <br />
-              Check-out {RESORT.checkOut}
+              Check-out {st.checkOut}
             </p>
           </div>
         </div>

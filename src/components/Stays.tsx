@@ -1,4 +1,5 @@
 "use client";
+import { useSettings, rateOf } from "@/lib/settings";
 import { useRef, useState } from "react";
 import { STAYS, type Stay } from "@/lib/data";
 import { peso } from "@/lib/bookings";
@@ -59,6 +60,7 @@ function Strip({ stay }: { stay: Stay }) {
 }
 
 export default function Stays() {
+  useSettings();
   const { openBooking } = useBooking();
   return (
     <section className="stays" id="stay">
@@ -100,7 +102,7 @@ export default function Stays() {
                 <div>
                   <dt className="label">From</dt>
                   <dd>
-                    {peso()} <small>/ night</small>
+                    {peso(rateOf(s.id))} <small>/ night</small>
                   </dd>
                 </div>
               </dl>

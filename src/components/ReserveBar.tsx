@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { RESORT } from "@/lib/data";
 import { useBooking } from "./BookingProvider";
 
@@ -7,6 +8,7 @@ import { useBooking } from "./BookingProvider";
 export default function ReserveBar() {
   const { openBooking, open } = useBooking();
   const [show, setShow] = useState(false);
+  const path = usePathname();
   useEffect(() => {
     let raf = 0;
     const on = () => {
@@ -22,6 +24,7 @@ export default function ReserveBar() {
     window.addEventListener("scroll", on, { passive: true });
     return () => window.removeEventListener("scroll", on);
   }, []);
+  if (path?.startsWith("/admin")) return null;
   return (
     <div className={"rbar" + (show && !open ? " on" : "")}>
       <button className="rbar-main" onClick={() => openBooking()}>

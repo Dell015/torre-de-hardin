@@ -1,6 +1,7 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
 import { STAYS, type StayId } from "./data";
+import { getSettings, money, stayName } from "./settings";
 
 /* ---------- Types ---------- */
 export type UnitId = StayId | "estate" | "hall";
@@ -26,6 +27,11 @@ export interface Booking {
   notes?: string;
   pay?: "manual" | "online";
   proof?: string;
+  proofData?: string; // small JPEG data URL of the receipt (demo only)
+  total?: number;
+  declineReason?: string;
+  adminNote?: string;
+  decidedAt?: string;
   createdAt: string;
   seed?: boolean;
 }
@@ -56,9 +62,9 @@ export const fmtShort = (s: string) =>
   parse(s).toLocaleDateString("en-PH", { month: "short", day: "numeric" });
 
 /* ---------- Capacity ---------- */
-const CAP: Record<StayId, number> = Object.fromEntries(STAYS.map((s) => [s.id, s.units])) as any;
+const cap = (u: StayId) => getSettings().units[u] ?? STAYS.find((s) => s.id === u)!.units;
 export const unitLabel = (u: UnitId) =>
-  u === "estate" ? "The Whole Estate" : u === "hall" ? "Function Hall" : STAYS.find((s) => s.id === u)!.name;
+  u === "estate" ? "The Whole Estate" : u === "hall" ? "Function Hall" : stayName(u);
 
 /* ---------- Seed data so the calendar feels alive ---------- */
 function seeds(): Booking[] {
@@ -142,7 +148,11 @@ export function useBookings() {
   );
   const remove = useCallback((id: string) => persist(load().filter((b) => b.id !== id)), []);
   const clear = useCallback(() => persist([]), []);
-  return { all: [...mine, ...seed], mine, add, setStatus, remove, clear };
+  const update = useCallback(
+    (id: string, patch: Partial<Booking>) => persist(load().map((b) => (b.id === id ? { ...b, ...patch } : b))),
+    []
+  );
+  return { update, all: [...mine, ...seed], mine, add, setStatus, remove, clear };
 }
 
 /* ---------- Availability ---------- */
@@ -156,7 +166,7 @@ export type DayState = "open" | "limited" | "sold" | "closed" | "past";
 export function unitsLeft(unit: StayId, date: string, all: Booking[]) {
   const live = all.filter((b) => active(b) && covers(b, date));
   if (live.some((b) => b.unit === "estate")) return 0;
-  return Math.max(0, CAP[unit] - live.filter((b) => b.unit === unit).length);
+  return Math.max(0, cap(unit) - live.filter((b) => b.unit === unit).length);
 }
 
 export function estateFree(date: string, all: Booking[]) {
@@ -183,7 +193,7 @@ export function dayState(date: string, mode: "stay" | "event", all: Booking[]): 
   }
   const left = STAYS.map((s) => unitsLeft(s.id, date, all));
   if (left.every((n) => n === 0)) return "sold";
-  const full = STAYS.map((s) => s.units);
+  const full = STAYS.map((s) => cap(s.id));
   return left.some((n, i) => n < full[i]) ? "limited" : "open";
 }
 
@@ -204,5 +214,4 @@ export function makeRef() {
 }
 
 /** Fees are shown as x until the owners confirm their rates. */
-export const SHOW_RATES = false;
-export const peso = (n?: number) => (SHOW_RATES && n ? `PHP ${n.toLocaleString("en-PH")}` : "PHP x,xxx");
+export const peso = (n?: number) => money(n);

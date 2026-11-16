@@ -4,11 +4,11 @@ import { getSettings } from "./settings";
 
 const when = (s?: string) => (s ? new Date(s).toLocaleString("en-PH", { dateStyle: "medium", timeStyle: "short" }) : "");
 const KIND: Record<string, string> = { stay: "Stay", event: "Event", block: "Closed dates" };
-const STATUS: Record<string, string> = { pending: "Waiting", confirmed: "Confirmed", declined: "Declined" };
+const STATUS: Record<string, string> = { pending: "Waiting", confirmed: "Confirmed", declined: "Declined", cancelled: "Cancelled" };
 
 export const BOOKING_HEAD = [
   "Reference", "Type", "Status", "Guest", "Mobile", "Email", "Room / venue", "Check-in / event date", "Check-out",
-  "Nights", "Time slot", "Guests", "Adults", "Children", "Occasion", "Payment", "Receipt file", "Estimated total (PHP)",
+  "Nights", "Time slot", "Guests", "Adults", "Children", "Occasion", "Payment", "Receipt file", "Estimated total (PHP)", "Voucher", "Discount (PHP)", "Deposit due (PHP)", "Paid so far (PHP)",
   "Guest notes", "Decline reason", "Owner's note", "Requested on", "Decided on",
 ];
 
@@ -18,7 +18,7 @@ export function bookingRows(list: Booking[]): Cell[][] {
     b.kind === "event" ? "" : b.end, b.kind === "event" ? "" : nightsBetween(b.start, b.end),
     b.slot ? ({ day: "Daytime", evening: "Evening", whole: "Whole day" } as any)[b.slot] : "",
     b.guests || "", b.adults, b.kids, b.eventType, b.pay === "online" ? "Online" : b.pay === "manual" ? "Bank / GCash" : "",
-    b.proof, b.total, b.notes, b.declineReason, b.adminNote, when(b.createdAt), when(b.decidedAt),
+    b.proof, b.total, b.voucher, b.discount, b.deposit, (b.payments || []).reduce((a, p) => a + (p.kind === "refund" ? -p.amount : p.amount), 0) || "", b.notes, b.declineReason, b.adminNote, when(b.createdAt), when(b.decidedAt),
   ]);
 }
 
@@ -47,6 +47,7 @@ export function exportBookings(list: Booking[], format: "xlsx" | "csv", label = 
         ["Waiting", byStatus("pending")],
         ["Confirmed", byStatus("confirmed")],
         ["Declined", byStatus("declined")],
+        ["Cancelled", byStatus("cancelled")],
         ["Estimated value of confirmed (PHP)", guests.filter((b) => b.status === "confirmed").reduce((a, b) => a + (b.total || 0), 0)],
         ["Check-in time", st.checkIn],
         ["Check-out time", st.checkOut],
@@ -56,4 +57,17 @@ export function exportBookings(list: Booking[], format: "xlsx" | "csv", label = 
   ];
   download(buildXlsx(sheets), `torre-de-jardin-${label}-${stamp}.xlsx`);
   return guests.length;
+}
+
+export interface MoneyRow { at: string; guest: string; ref: string; room: string; kind: string; method: string; reference: string; note: string; amount: number }
+export function exportIncome(rows: MoneyRow[], format: "xlsx" | "csv", label: string, summary: Cell[][]) {
+  const stamp = new Date().toISOString().slice(0, 10);
+  const head = ["Date", "Guest", "Booking", "Room / venue", "Type", "Method", "Reference no.", "Note", "Amount (PHP)"];
+  const body = rows.map((r) => [when(r.at), r.guest, r.ref, r.room, r.kind === "refund" ? "Refund" : "Payment", r.method, r.reference, r.note, r.kind === "refund" ? -r.amount : r.amount]);
+  if (format === "csv") {
+    download(new Blob([toCsv([head, ...body])], { type: "text/csv;charset=utf-8" }), `torre-de-jardin-income-${label}-${stamp}.csv`);
+    return rows.length;
+  }
+  download(buildXlsx([{ name: "Payments", rows: [head, ...body] }, { name: "Summary", rows: summary }]), `torre-de-jardin-income-${label}-${stamp}.xlsx`);
+  return rows.length;
 }

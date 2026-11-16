@@ -1,13 +1,16 @@
 "use client";
 import { useEffect } from "react";
+import { usePathname } from "next/navigation";
 import Lenis from "lenis";
 import { gsap, ScrollTrigger, initGsap, prefersReduced } from "@/lib/motion";
 
 /** Lenis inertia scroll wired into GSAP's ticker so ScrollTrigger stays in sync. */
 export default function SmoothScroll() {
+  const path = usePathname();
+  const admin = path?.startsWith("/admin");
   useEffect(() => {
     initGsap();
-    if (prefersReduced()) return;
+    if (prefersReduced() || admin) return; // admin uses normal native scrolling
     const lenis = new Lenis({
       duration: 1.35,
       // exponential ease-out: quick to respond, slow to settle
@@ -25,6 +28,6 @@ export default function SmoothScroll() {
       lenis.destroy();
       delete (window as any).__lenis;
     };
-  }, []);
+  }, [admin]);
   return null;
 }

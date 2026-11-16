@@ -4,7 +4,9 @@ import { gsap, initGsap, lockScroll } from "@/lib/motion";
 import { useBooking } from "./BookingProvider";
 import Calendar from "./Calendar";
 import { STAYS, EVENT_TYPES, RESORT } from "@/lib/data";
-import { useSettings, rateOf } from "@/lib/settings";
+import { useSettings, rateOf, depositOf } from "@/lib/settings";
+import { checkVoucher, discountFor, describe, type Voucher } from "@/lib/vouchers";
+import { logAction } from "@/lib/adminlog";
 import {
   type Booking,
   type Slot,
@@ -66,6 +68,9 @@ export default function BookingSheet() {
   const { all, add } = useBookings();
   const { s: st } = useSettings();
   const [proofData, setProofData] = useState("");
+  const [code, setCode] = useState("");
+  const [vouch, setVouch] = useState<Voucher | null>(null);
+  const [vMsg, setVMsg] = useState("");
 
   const [mounted, setMounted] = useState(false);
   const panel = useRef<HTMLDivElement>(null);
@@ -158,6 +163,7 @@ export default function BookingSheet() {
     setEventDate("");
     setD({ name: "", phone: "", email: "", notes: "" });
     setProof(""); setProofData("");
+    setCode(""); setVouch(null); setVMsg("");
     setPay("manual");
     setDone(null);
     setTouched(false);
@@ -240,6 +246,22 @@ export default function BookingSheet() {
       ? (rateOf(unit as string) || 0) * (nights || 0)
       : rateOf(exclusive ? "estate" : "hall");
 
+  const discount = vouch ? discountFor(vouch, estimate) : 0;
+  const net = Math.max(0, estimate - discount);
+  const unitKey = mode === "stay" ? (unit as string) : exclusive ? "estate" : "hall";
+  const depositDue = depositOf(unitKey);
+
+  function applyCode() {
+    const res = checkVoucher(code, mode, all);
+    if (res.ok) {
+      setVouch(res.v);
+      setVMsg(`Voucher applied — ${describe(res.v)}.`);
+    } else {
+      setVouch(null);
+      setVMsg(res.error);
+    }
+  }
+
   function onProof(f?: File | null) {
     setProof(f?.name || "");
     setProofData("");
@@ -284,12 +306,19 @@ export default function BookingSheet() {
       pay,
       proof: proof || undefined,
       proofData: proofData || undefined,
-      total: estimate || undefined,
+      total: net || undefined,
+      deposit: depositDue || undefined,
+      voucher: vouch?.code,
+      discount: discount || undefined,
+      discountLabel: vouch ? describe(vouch) : undefined,
       createdAt: new Date().toISOString(),
     };
     setTimeout(
       () => {
         add(b);
+        logAction(`New ${b.kind} request ${b.ref} from ${b.name}`, "booking", { actor: "Guest", ref: b.ref });
+        if (b.proof) logAction(`Receipt uploaded for ${b.ref} (${b.proof})`, "payment", { actor: "Guest", ref: b.ref });
+        if (b.voucher) logAction(`Voucher ${b.voucher} (${b.discountLabel}) used on ${b.ref}`, "voucher", { actor: "Guest", ref: b.ref, amount: b.discount });
         setDone(b);
         setBusy(false);
       },
@@ -347,8 +376,8 @@ export default function BookingSheet() {
                 Thank you, <em>{done.name.split(" ")[0]}</em>.
               </h2>
               <p className="sh-in lede">
-                Your request is now with the owners. They review each one personally and will confirm by text or Messenger. Your
-                dates are held for you in the meantime.
+                Your reservation is now waiting for the owners' approval. They review each request personally and will confirm by text or
+                Messenger. Sending your downpayment right away secures your booking.
               </p>
               <div className="sh-in ticket">
                 <div>
@@ -381,8 +410,8 @@ export default function BookingSheet() {
                 <button className="btn btn-solid" onClick={closeBooking}>
                   <span>Back to the estate</span>
                 </button>
-                <a className="btn" href="/admin">
-                  <span>See the owner's desk</span>
+                <a className="btn" href={`/manage?ref=${done.ref}`}>
+                  <span>Manage or cancel this booking</span>
                 </a>
               </div>
             </div>
@@ -658,14 +687,37 @@ export default function BookingSheet() {
                 <div>
                   <span className="label">Estimate</span>
                   <p>
-                    <b>{peso(estimate)}</b>
+                    <b>{peso(net)}</b>
+                    {vouch && <small> · {vouch.code}: {describe(vouch)}</small>}
                     <br />
                     <small>Rates are confirmed by the owners.</small>
                   </p>
                 </div>
               </div>
 
-              <span className="label sh-in">Reservation deposit — {peso(st.deposit)}</span>
+              <div className="voucher sh-in">
+                <label>
+                  <span className="label">Voucher code · optional</span>
+                  <span className="voucher-row">
+                    <input
+                      value={code}
+                      autoCapitalize="characters"
+                      placeholder="e.g. WELCOME10"
+                      onChange={(e) => {
+                        setCode(e.target.value.toUpperCase());
+                        setVouch(null);
+                        setVMsg("");
+                      }}
+                    />
+                    <button type="button" className="btn" onClick={applyCode}>
+                      <span>Apply</span>
+                    </button>
+                  </span>
+                </label>
+                {vMsg && <small className={vouch ? "ok" : "warn"}>{vMsg}</small>}
+              </div>
+
+              <span className="label sh-in">Reservation deposit — {peso(depositDue)}</span>
               <div className="pays sh-in">
                 <button className={"pay" + (pay === "manual" ? " on" : "")} onClick={() => setPay("manual")}>
                   <span className="pay-mark">A</span>
@@ -719,7 +771,7 @@ export default function BookingSheet() {
                 </div>
               )}
               <p className="small sh-in muted">
-                Nothing is charged until the owners confirm. Your request holds the dates while they review it.
+                Your reservation still needs the owners' approval. Paying the downpayment right away secures your booking; without one, the dates may be given to another guest.
               </p>
             </div>
           )}

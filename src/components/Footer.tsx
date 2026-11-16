@@ -38,6 +38,7 @@ export default function Footer() {
             <a href={RESORT.messenger} target="_blank" rel="noreferrer">
               Message us
             </a>
+            <a href="/manage">Manage or cancel a booking</a>
           </div>
           <div>
             <span className="label">Hours</span>

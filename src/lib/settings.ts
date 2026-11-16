@@ -11,7 +11,7 @@ export type RateKey = "private" | "family" | "cabin" | "estate" | "hall";
 export interface Settings {
   showRates: boolean;
   rates: Record<RateKey, number>; // per night (hall: per event)
-  deposit: number;
+  deposits: Record<RateKey, number>; // reservation deposit per room / estate / hall
   units: { private: number; family: number; cabin: number };
   names: { private: string; family: string; cabin: string };
   sleeps: { private: string; family: string; cabin: string };
@@ -19,20 +19,23 @@ export interface Settings {
   checkOut: string;
   pay: { method: string; number: string; accountName: string; bank: string; note: string; qr: string };
   phones: string[];
+  holdHours: number; // a waiting request holds its dates this long (0 = forever)
   pin: string;
 }
 
 export const DEFAULTS: Settings = {
   showRates: false,
   rates: { private: 0, family: 0, cabin: 0, estate: 0, hall: 0 },
-  deposit: 0,
-  units: { private: 3, family: 1, cabin: 2 },
-  names: { private: "Private Villa", family: "Family Villa", cabin: "Cabin" },
-  sleeps: { private: "4 guests", family: "8 guests", cabin: "2 guests" },
+  deposits: { private: 0, family: 0, cabin: 0, estate: 0, hall: 0 },
+  // Rooms are defined in code (data.ts) only — not editable from the admin.
+  units: Object.fromEntries(STAYS.map((x) => [x.id, x.units])) as Settings["units"],
+  names: Object.fromEntries(STAYS.map((x) => [x.id, x.name])) as Settings["names"],
+  sleeps: Object.fromEntries(STAYS.map((x) => [x.id, x.sleeps])) as Settings["sleeps"],
   checkIn: RESORT.checkIn,
   checkOut: RESORT.checkOut,
   pay: { method: "GCash", number: "", accountName: "Torre de Jardin", bank: "", note: "", qr: "" },
   phones: RESORT.phones.map((p) => p.label),
+  holdHours: 48,
   pin: "1234",
 };
 
@@ -44,9 +47,10 @@ const merge = (raw: any): Settings => ({
   ...DEFAULTS,
   ...raw,
   rates: { ...DEFAULTS.rates, ...(raw?.rates || {}) },
-  units: { ...DEFAULTS.units, ...(raw?.units || {}) },
-  names: { ...DEFAULTS.names, ...(raw?.names || {}) },
-  sleeps: { ...DEFAULTS.sleeps, ...(raw?.sleeps || {}) },
+  deposits: { ...DEFAULTS.deposits, ...(raw?.deposits || {}) },
+  units: DEFAULTS.units,
+  names: DEFAULTS.names,
+  sleeps: DEFAULTS.sleeps,
   pay: { ...DEFAULTS.pay, ...(raw?.pay || {}) },
 });
 
@@ -109,3 +113,5 @@ export function money(n?: number) {
   return st.showRates && n ? `PHP ${n.toLocaleString("en-PH")}` : "PHP x,xxx";
 }
 export const rateOf = (k: string) => (getSettings().rates as any)[k] || 0;
+
+export const depositOf = (k: string) => (getSettings().deposits as any)[k] || 0;

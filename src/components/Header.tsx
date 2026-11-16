@@ -16,6 +16,12 @@ const LINKS = [
 ];
 
 export default function Header() {
+  const path = usePathname();
+  if (path?.startsWith("/admin")) return null;
+  return <SiteHeader />;
+}
+
+function SiteHeader() {
   const pathname = usePathname();
   const home = pathname === "/";
   const { openBooking } = useBooking();

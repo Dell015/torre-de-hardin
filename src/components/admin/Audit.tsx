@@ -7,6 +7,7 @@ import type { Booking } from "@/lib/bookings";
 import { addDays, today } from "@/lib/bookings";
 import { restore, useHistory } from "@/lib/history";
 import { ConfirmLink } from "./shared";
+import DatePicker from "./DatePicker";
 
 const label = (c: Cat) => CATS.find((x) => x.id === c)!.label;
 const fmt = (t: string) => new Date(t).toLocaleString("en-PH", { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" });
@@ -100,11 +101,11 @@ export default function Audit({ all }: { all: Booking[] }) {
           <>
             <label>
               <span className="label">From</span>
-              <input type="date" value={fromC} onChange={(e) => setFromC(e.target.value)} />
+              <DatePicker value={fromC} clearable placeholder="Any date" onChange={(e) => setFromC(e.target.value)} />
             </label>
             <label>
               <span className="label">To</span>
-              <input type="date" value={toC} onChange={(e) => setToC(e.target.value)} />
+              <DatePicker value={toC} clearable placeholder="Any date" min={fromC || undefined} onChange={(e) => setToC(e.target.value)} />
             </label>
           </>
         )}

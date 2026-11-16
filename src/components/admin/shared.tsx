@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { RESORT } from "@/lib/data";
-import { fmtLong, nightsBetween, unitLabel, type Booking } from "@/lib/bookings";
+import { eachNight, fmtLong, isExpired, isLive, nightsBetween, today, unitLabel, type Booking } from "@/lib/bookings";
 import { getSettings } from "@/lib/settings";
 
 export const STATUS: Record<string, string> = { pending: "Waiting", confirmed: "Confirmed", declined: "Declined", cancelled: "Cancelled" };
@@ -125,4 +125,50 @@ export function ConfirmLink({ label, yes, onConfirm, solid, disabled }: { label:
       </button>
     </span>
   );
+}
+
+/** Live bookings that compete for the same room, hall or estate on the same dates. */
+export function clashIds(all: Booking[]): Set<string> {
+  const st = getSettings();
+  const liveAll = all.filter(isLive);
+  const estateOn = (d: string) => liveAll.some((b) => b.unit === "estate" && b.start <= d && d < b.end);
+  const out = new Set<string>();
+  for (const b of liveAll) {
+    if (b.kind === "block" || phaseOf(b) === "completed") continue;
+    const nights = b.kind === "event" ? [b.start] : eachNight(b.start, b.end);
+    if (b.unit === "estate") {
+      if (liveAll.some((o) => o.id !== b.id && o.unit !== "estate" && o.kind !== "block" && o.start < b.end && o.end > b.start)) out.add(b.id);
+      continue;
+    }
+    if (nights.some((d) => estateOn(d))) { out.add(b.id); continue; }
+    if (b.unit === "hall") {
+      if (liveAll.some((o) => o.id !== b.id && o.unit === "hall" && o.start === b.start && (o.slot === "whole" || b.slot === "whole" || o.slot === b.slot))) out.add(b.id);
+      continue;
+    }
+    const cap = st.units[b.unit as keyof typeof st.units] ?? 1;
+    if (nights.some((d) => liveAll.filter((o) => o.unit === b.unit && o.start <= d && d < o.end).length > cap)) out.add(b.id);
+  }
+  return out;
+}
+
+/**
+ * Everything that is shown in red somewhere in the admin, counted per section.
+ * A section keeps its red dot until the issue is resolved (answered, paid, or the overlap removed).
+ */
+export function attention(all: Booking[]) {
+  const t = today();
+  const bk = all.filter((b) => b.kind !== "block");
+  const waiting = bk.filter((b) => b.status === "pending").length; // includes holds that ran out of time
+  const expired = bk.filter((b) => b.status === "pending" && isExpired(b)).length;
+  const cancelReq = bk.filter((b) => b.cancelRequest?.state === "requested" && b.status !== "cancelled").length;
+  const owing = bk.filter((b) => unpaidAfter(b)).length;
+  const ids = clashIds(all);
+  const overlaps = bk.filter((b) => ids.has(b.id) && b.end >= t).length;
+  return {
+    counts: { waiting, expired, cancelReq, owing, overlaps },
+    dash: cancelReq + owing,
+    book: waiting + cancelReq + owing,
+    mgr: overlaps,
+    money: owing,
+  } as { counts: Record<string, number> } & Record<string, any>;
 }

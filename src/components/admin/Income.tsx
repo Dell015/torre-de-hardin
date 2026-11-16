@@ -5,6 +5,7 @@ import { addDays, today, unitLabel, type Booking } from "@/lib/bookings";
 import { exportIncome, type MoneyRow } from "@/lib/export";
 import { logAction } from "@/lib/adminlog";
 import { balanceOf, unpaidAfter } from "./shared";
+import DatePicker from "./DatePicker";
 
 const php = (n: number) => `${n < 0 ? "-" : ""}PHP ${Math.abs(Math.round(n)).toLocaleString("en-PH")}`;
 const day = (iso: string) => iso.slice(0, 10);
@@ -85,7 +86,8 @@ export default function Income({ all, open }: { all: Booking[]; open: (id: strin
       const after = unpaidAfter(bk);
       return { bk, after, left: after ? balanceOf(bk) : Math.max(0, (bk.deposit || 0) - paid) };
     })
-    .filter((x) => x.left > 0);
+    .filter((x) => x.left > 0)
+    .sort((a, b) => Number(b.after) - Number(a.after));
   const owedTotal = owed.reduce((n, x) => n + x.left, 0);
 
   const doExport = (f: "xlsx" | "csv") => {
@@ -118,8 +120,8 @@ export default function Income({ all, open }: { all: Booking[]; open: (id: strin
         </label>
         {range === "custom" && (
           <div className="fields two">
-            <label><span className="label">From</span><input type="date" value={from} onChange={(e) => setFrom(e.target.value)} /></label>
-            <label><span className="label">To</span><input type="date" value={to} min={from} onChange={(e) => setTo(e.target.value)} /></label>
+            <label><span className="label">From</span><DatePicker value={from} onChange={(e) => e.target.value && setFrom(e.target.value)} /></label>
+            <label><span className="label">To</span><DatePicker value={to} min={from} onChange={(e) => e.target.value && setTo(e.target.value)} /></label>
           </div>
         )}
       </div>
@@ -128,7 +130,19 @@ export default function Income({ all, open }: { all: Booking[]; open: (id: strin
         <div className="big"><span>Net income</span><b>{php(net)}</b></div>
         <div><span>Payments received</span><b>{php(received)}</b></div>
         <div><span>Refunds given</span><b>{php(refunded)}</b></div>
-        <div><span>Still to collect</span><b>{php(owedTotal)}</b><small>{owed.length} booking{owed.length === 1 ? "" : "s"} with money owed</small></div>
+        {(() => {
+          const late = owed.filter((x) => x.after);
+          const lateTotal = late.reduce((n, x) => n + x.left, 0);
+          return late.length > 0 ? (
+            <button type="button" className="late" onClick={() => document.getElementById("owed-list")?.scrollIntoView({ behavior: "smooth", block: "start" })}>
+              <span>Still to collect</span>
+              <b>{php(owedTotal)}</b>
+              <small>{late.length} finished stay{late.length === 1 ? "" : "s"} unpaid ({php(lateTotal)}). Tap to see who</small>
+            </button>
+          ) : (
+            <div><span>Still to collect</span><b>{php(owedTotal)}</b><small>{owed.length} booking{owed.length === 1 ? "" : "s"} with money owed</small></div>
+          );
+        })()}
       </div>
 
       <h3 className="ad-h">Last 6 months</h3>
@@ -193,10 +207,10 @@ export default function Income({ all, open }: { all: Booking[]; open: (id: strin
 
       {owed.length > 0 && (
         <>
-          <h3 className="ad-h">Money still to collect</h3>
+          <h3 className="ad-h" id="owed-list">Money still to collect</h3>
           <ul className="ad-pl">
             {owed.map(({ bk, left, after }) => (
-              <li key={bk.id}>
+              <li key={bk.id} className={after ? "late" : ""}>
                 <button onClick={() => open(bk.id)}>
                   <span><b>{bk.name}</b><small>{unitLabel(bk.unit)} · {bk.ref} · {after ? "stay finished, balance unpaid" : "deposit not yet received"}</small></span>
                   <b>{php(left)}</b>

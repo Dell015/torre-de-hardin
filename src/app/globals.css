@@ -3202,3 +3202,36 @@ label.btn { cursor: pointer; }
 .tl-warn { color: #8f2d2d; margin-bottom: 0.5rem; }
 .tl-form { margin-top: 1.6rem; scroll-margin-top: 5rem; }
 @media (max-width: 700px) { .tl { --lw: 5.6rem; --cw: 3rem; } .tl-l b { font-size: 0.74rem; } }
+
+/* ---------- date picker (matches the dropdowns) ---------- */
+.dp svg { color: var(--ink-2); }
+.dp[aria-expanded="true"] svg { transform: none; }
+.dp .ph { color: rgba(28, 27, 24, 0.5); }
+.dp-pop { position: fixed; z-index: 400; padding: 0.8rem 0.8rem 0.6rem; background: #fff; border: 1px solid var(--line); border-radius: 6px; box-shadow: 0 12px 32px rgba(21, 36, 28, 0.22), 0 2px 6px rgba(21, 36, 28, 0.1); font-family: var(--sans); animation: selIn 0.14s ease-out; }
+.dp-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem; }
+.dp-head b { font-family: var(--serif); font-size: 1.25rem; font-weight: 500; letter-spacing: 0.01em; }
+.dp-head button { width: 2.2rem; height: 2.2rem; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 50%; background: none; color: var(--ink); cursor: pointer; transition: background 0.15s, border-color 0.15s; }
+.dp-head button:hover { background: #eef2ec; border-color: var(--forest); }
+.dp-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+.dp-dow { text-align: center; font-size: 0.66rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-2); padding: 0.35rem 0; }
+.dp-day { aspect-ratio: 1; display: grid; place-items: center; border: 0; border-radius: 50%; background: none; font: inherit; font-size: 0.92rem; color: var(--ink); cursor: pointer; transition: background 0.12s, color 0.12s; }
+.dp-day:hover:not(:disabled) { background: #eef2ec; }
+.dp-day:focus-visible { outline: 2px solid var(--forest); outline-offset: -2px; }
+.dp-day.td { box-shadow: inset 0 0 0 1px var(--brass); font-weight: 700; }
+.dp-day.on { background: var(--forest); color: var(--paper); font-weight: 700; box-shadow: none; }
+.dp-day:disabled { opacity: 0.28; cursor: not-allowed; }
+.dp-foot { display: flex; justify-content: space-between; gap: 0.6rem; margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid var(--line); }
+.dp-foot button { border: 0; background: none; font: inherit; font-size: 0.82rem; font-weight: 600; color: var(--forest); padding: 0.4rem 0.2rem; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+.dp-foot button:disabled { opacity: 0.35; cursor: not-allowed; text-decoration: none; }
+.tl-jump { min-width: 12.5rem; }
+.tl-jump .sel, .tl-span .sel { min-height: 2.9rem; }
+
+/* money owed shows in red, matching the red dot on the Income tab */
+.ad-money > button.late { text-align: left; font: inherit; cursor: pointer; background: rgba(143,45,45,0.07); border: 1px solid #8f2d2d; border-radius: 4px; padding: 0.9rem 1rem; display: grid; gap: 0.2rem; color: inherit; transition: background 0.2s; }
+.ad-money > button.late:hover { background: rgba(143,45,45,0.13); }
+.ad-money > button.late b { color: #8f2d2d; }
+.ad-money > button.late small { color: #8f2d2d; font-weight: 600; }
+.ad-pl li.late { box-shadow: inset 3px 0 0 #8f2d2d; }
+.ad-pl li.late > button > b { color: #8f2d2d; }
+.ad-pl li.late small { color: #8f2d2d; }
+.ad-pl li.late > button { padding-left: 1rem; }

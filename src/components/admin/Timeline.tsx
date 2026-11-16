@@ -1,11 +1,12 @@
 "use client";
 import { useMemo, useState } from "react";
-import { addDays, eachNight, fmtLong, isLive, today, unitLabel, type Booking, type UnitId } from "@/lib/bookings";
+import { addDays, fmtLong, isLive, today, unitLabel, type Booking, type UnitId } from "@/lib/bookings";
 import { STAYS } from "@/lib/data";
 import { getSettings } from "@/lib/settings";
 import Select from "./Select";
 import { QuickRow } from "./Dashboard";
-import { balanceOf, phaseOf, title, unpaidAfter } from "./shared";
+import { balanceOf, clashIds, phaseOf, title, unpaidAfter } from "./shared";
+import DatePicker from "./DatePicker";
 
 type Row = { id: UnitId; name: string; cap: number };
 type Sel = { id: string } | { unit: UnitId; date: string } | null;
@@ -35,27 +36,7 @@ export default function Timeline({ all, open, update, onAdd }: { all: Booking[];
   const liveAll = useMemo(() => all.filter(isLive), [all]);
   const estateOn = (d: string) => liveAll.some((b) => b.unit === "estate" && b.start <= d && d < b.end);
 
-  /** Bookings that compete for the same room / hall / estate on the same dates. */
-  const clash = useMemo(() => {
-    const out = new Set<string>();
-    for (const b of liveAll) {
-      if (b.kind === "block" || phaseOf(b) === "completed") continue;
-      const nights = b.kind === "event" ? [b.start] : eachNight(b.start, b.end);
-      if (b.unit === "estate") {
-        if (liveAll.some((o) => o.id !== b.id && o.unit !== "estate" && o.kind !== "block" && o.start < b.end && o.end > b.start)) out.add(b.id);
-        continue;
-      }
-      if (nights.some((d) => estateOn(d))) { out.add(b.id); continue; }
-      if (b.unit === "hall") {
-        if (liveAll.some((o) => o.id !== b.id && o.unit === "hall" && o.start === b.start && (o.slot === "whole" || b.slot === "whole" || o.slot === b.slot))) out.add(b.id);
-        continue;
-      }
-      const cap = st.units[b.unit as keyof typeof st.units] ?? 1;
-      if (nights.some((d) => liveAll.filter((o) => o.unit === b.unit && o.start <= d && d < o.end).length > cap)) out.add(b.id);
-    }
-    return out;
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [liveAll]);
+  const clash = useMemo(() => clashIds(all), [all]);
 
   const inWin = (b: Booking) => b.end > from && b.start < endWin;
   const winBookings = liveAll.filter((b) => b.kind !== "block" && inWin(b));
@@ -128,7 +109,7 @@ export default function Timeline({ all, open, update, onAdd }: { all: Booking[];
         </div>
         <label className="tl-jump">
           <span className="label">Go to date</span>
-          <input type="date" value={from} onChange={(e) => e.target.value && setFrom(e.target.value)} />
+          <DatePicker value={from} onChange={(e) => e.target.value && setFrom(e.target.value)} />
         </label>
         <label className="tl-span">
           <span className="label">Show</span>

@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { STAYS } from "@/lib/data";
 import { isLive, addDays, eachNight, fmtShort, today, unitLabel, type Booking, type Slot, type UnitId } from "@/lib/bookings";
 import { getSettings } from "@/lib/settings";
+import DatePicker from "./DatePicker";
 
 export type EntryType = "close" | "owner" | "room" | "guest";
 export const ENTRY_TYPES: { id: EntryType; label: string; hint: string }[] = [
@@ -152,12 +153,12 @@ export default function EntryForm({
         )}
         <label>
           <span className="label">{isEvent ? "Date" : "First night / day"}</span>
-          <input type="date" value={from} onChange={(e) => { setFrom(e.target.value); if (to < e.target.value) setTo(e.target.value); }} />
+          <DatePicker value={from} onChange={(e) => { if (!e.target.value) return; setFrom(e.target.value); if (to < e.target.value) setTo(e.target.value); }} />
         </label>
         {!isEvent && (
           <label>
             <span className="label">Last night / day</span>
-            <input type="date" value={lastDay} min={from} onChange={(e) => setTo(e.target.value)} />
+            <DatePicker value={lastDay} min={from} onChange={(e) => e.target.value && setTo(e.target.value)} />
           </label>
         )}
         {(effUnit === "hall" || (isEvent && effUnit === "hall")) && (

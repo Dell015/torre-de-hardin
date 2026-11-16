@@ -7,6 +7,7 @@ import { describe, saveVouchers, useVouchers, usesOf, type Voucher } from "@/lib
 import { download, buildXlsx } from "@/lib/xlsx";
 import { snap } from "@/lib/history";
 import { ConfirmLink } from "./shared";
+import DatePicker from "./DatePicker";
 
 const blank = { code: "", kind: "percent" as Voucher["kind"], value: 10, appliesTo: "all" as Voucher["appliesTo"], from: "", until: "", maxUses: "", note: "" };
 
@@ -102,11 +103,11 @@ export default function Vouchers({ all }: { all: Booking[] }) {
         </label>
         <label>
           <span className="label">Can be used from (optional)</span>
-          <input type="date" value={f.from} onChange={(e) => setF({ ...f, from: e.target.value })} />
+          <DatePicker value={f.from} clearable placeholder="No start date" onChange={(e) => setF({ ...f, from: e.target.value })} />
         </label>
         <label>
           <span className="label">Expires after (optional)</span>
-          <input type="date" value={f.until} onChange={(e) => setF({ ...f, until: e.target.value })} />
+          <DatePicker value={f.until} clearable placeholder="No end date" min={f.from || undefined} onChange={(e) => setF({ ...f, until: e.target.value })} />
         </label>
         <label>
           <span className="label">Max number of uses (blank = unlimited)</span>

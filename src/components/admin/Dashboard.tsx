@@ -38,8 +38,8 @@ function facilities(d: string, onDay: Booking[]): Fac[] {
 
 
 /** Tap a booking → small summary with the actions a manager needs day to day. */
-function QuickRow({ b, t, open, update, right }: { b: Booking; t: string; open: (id: string) => void; update: (id: string, patch: Partial<Booking>, label?: string) => void; right?: React.ReactNode }) {
-  const [show, setShow] = useState(false);
+export function QuickRow({ b, t, open, update, right, startOpen }: { startOpen?: boolean; b: Booking; t: string; open: (id: string) => void; update: (id: string, patch: Partial<Booking>, label?: string) => void; right?: React.ReactNode }) {
+  const [show, setShow] = useState(!!startOpen);
   const [cancel, setCancel] = useState(false);
   const [why, setWhy] = useState("");
   const isBlock = b.kind === "block";
@@ -84,7 +84,7 @@ function QuickRow({ b, t, open, update, right }: { b: Booking; t: string; open: 
               {stay && b.status === "confirmed" && !b.checkedOutAt && b.end === t && <button className="btn btn-solid" onClick={() => act({ checkedOutAt: new Date().toISOString() }, `Marked ${b.name} as checked out (${b.ref})`)}><span>Mark as checked out</span></button>}
               {inHouse && b.end > t && b.start < t && <button className="btn" onClick={() => act({ checkedOutAt: new Date().toISOString(), earlyFrom: b.end, end: t }, `${b.name} left early — freed the remaining nights (${b.ref})`)}><span>Left early — free the room</span></button>}
               {!isBlock && (b.status === "confirmed" || b.status === "pending") && !b.checkedInAt && b.end !== t && <button className="btn" onClick={() => setCancel(true)}><span>{dueIn ? "No-show / cancel" : "Cancel booking"}</span></button>}
-              {isBlock && <button className="btn" onClick={() => open(b.id)}><span>Edit in Manager's booking</span></button>}
+              {isBlock && <button className="btn" onClick={() => open(b.id)}><span>Edit in Calendar</span></button>}
               {!isBlock && <button className="link small" onClick={() => open(b.id)}><span>Open full details →</span></button>}
             </div>
           )}

@@ -21,7 +21,7 @@ import { unpaidAfter } from "./shared";
 const TABS = [
   ["dash", "Overview"],
   ["book", "Bookings"],
-  ["mgr", "Manager's booking"],
+  ["mgr", "Calendar"],
   ["money", "Income"],
   ["vouch", "Vouchers"],
   ["rates", "Rates & deposits"],
@@ -235,7 +235,7 @@ export default function AdminApp() {
         )}
         {tab === "dash" && <Dashboard all={api.all} open={openBooking} go={go} onAdd={addOn} update={api.update} />}
         {tab === "book" && <Bookings api={api} initialFilter={filter} openId={openId} onClose={() => setOpenId(null)} onSave={saveEntry} />}
-        {tab === "mgr" && <Manager all={api.all} date={mgrDate} onSave={saveEntry} remove={api.remove} />}
+        {tab === "mgr" && <Manager all={api.all} date={mgrDate} open={openBooking} update={api.update} onSave={saveEntry} remove={api.remove} />}
         {tab === "money" && <Income all={api.all} open={(id) => { setTab("book"); setFilter("all"); setOpenId(id); }} />}
         {tab === "vouch" && <Vouchers all={api.all} />}
         {tab === "audit" && <Audit all={api.all} />}

@@ -209,13 +209,25 @@ function Drawer({ b, api, close, onSave }: { b: Booking; api: Api; close: () => 
   const phone = b.phone.replace(/[^\d+]/g, "");
   const dueDep = b.deposit || dep || 0;
   const [pf, setPf] = useState({ amount: String(Math.max(0, dueDep - paidSum) || ""), method: "GCash", ref: "", note: "" });
-  const addPay = (kind: Payment["kind"]) => {
+  const addPay = () => {
     const amount = Number(pf.amount);
     if (!(amount > 0)) return;
-    const p: Payment = { id: Date.now().toString(36), kind, amount, method: pf.method, ref: pf.ref || undefined, note: pf.note || undefined, at: new Date().toISOString() };
-    api.update(b.id, { payments: [...pays, p] }, `${kind === "refund" ? "Refund" : "Payment"} on ${b.ref}`);
-    logAction(`${kind === "refund" ? "Refunded" : "Received"} PHP ${amount.toLocaleString("en-PH")} via ${pf.method} for ${b.ref} · ${b.name}${pf.ref ? ` (ref ${pf.ref})` : ""}`, "payment", { ref: b.ref, amount: kind === "refund" ? -amount : amount });
+    const p: Payment = { id: Date.now().toString(36), kind: "payment", amount, method: pf.method, ref: pf.ref || undefined, note: pf.note || undefined, at: new Date().toISOString() };
+    api.update(b.id, { payments: [...pays, p] }, `Payment on ${b.ref}`);
+    logAction(`Received PHP ${amount.toLocaleString("en-PH")} via ${pf.method} for ${b.ref} · ${b.name}${pf.ref ? ` (ref ${pf.ref})` : ""}`, "payment", { ref: b.ref, amount });
     setPf({ ...pf, amount: "", ref: "", note: "" });
+  };
+  const [refundOpen, setRefundOpen] = useState(false);
+  const [rf, setRf] = useState({ amount: "", method: "GCash", ref: "", why: "" });
+  const rfAmount = Number(rf.amount);
+  const rfOk = rfAmount > 0 && rfAmount <= paidSum && rf.why.trim().length >= 3;
+  const addRefund = () => {
+    if (!rfOk) return;
+    const p: Payment = { id: Date.now().toString(36), kind: "refund", amount: rfAmount, method: rf.method, ref: rf.ref || undefined, note: rf.why.trim(), at: new Date().toISOString() };
+    api.update(b.id, { payments: [...pays, p] }, `Refund on ${b.ref}`);
+    logAction(`Refunded PHP ${rfAmount.toLocaleString("en-PH")} via ${rf.method} for ${b.ref} · ${b.name} (${rf.why.trim()})`, "payment", { ref: b.ref, amount: -rfAmount });
+    setRf({ amount: "", method: rf.method, ref: "", why: "" });
+    setRefundOpen(false);
   };
   const delPay = (id: string) => {
     api.update(b.id, { payments: pays.filter((x) => x.id !== id) }, `Removed a payment on ${b.ref}`);
@@ -358,19 +370,29 @@ function Drawer({ b, api, close, onSave }: { b: Booking; api: Api; close: () => 
             <>
               {RivalBox}
               <span className="label">Money</span>
+              {(() => {
+                const bal = balanceOf(b);
+                const target = b.total || b.deposit || 0;
+                const clear = target > 0 && bal === 0;
+                const m = (n: number) => `PHP ${n.toLocaleString("en-PH")}`;
+                return (
+                  <div className={"ad-balance" + (clear ? " clear" : bal > 0 && unpaidAfter(b) ? " late" : "")}>
+                    <div>
+                      <small>{clear ? "Fully paid" : b.total ? "Balance to collect" : "Deposit to collect"}</small>
+                      <b>{target ? (clear ? m(0) : m(bal)) : "—"}</b>
+                    </div>
+                    <div className="ad-balance-sum">
+                      <span>Total <b>{b.total ? m(b.total) : "—"}</b></span>
+                      <span>Paid so far <b>{m(paidSum)}</b></span>
+                    </div>
+                  </div>
+                );
+              })()}
               <dl className="ad-dl">
                 <div>
-                  <dt className="label">Total (estimate)</dt>
-                  <dd>{b.total ? `PHP ${b.total.toLocaleString("en-PH")}` : "—"}</dd>
-                </div>
-                <div>
                   <dt className="label">Deposit due</dt>
-                  <dd>{dueDep ? `PHP ${dueDep.toLocaleString("en-PH")}` : "—"}</dd>
-                </div>
-                <div>
-                  <dt className="label">Received</dt>
                   <dd>
-                    <b>PHP {paidSum.toLocaleString("en-PH")}</b>
+                    {dueDep ? `PHP ${dueDep.toLocaleString("en-PH")}` : "—"}
                     {dueDep ? (paidSum >= dueDep ? " · deposit paid ✓" : ` · PHP ${(dueDep - paidSum).toLocaleString("en-PH")} to go`) : ""}
                   </dd>
                 </div>
@@ -416,10 +438,12 @@ function Drawer({ b, api, close, onSave }: { b: Booking; api: Api; close: () => 
               {!demo && (
                 <div className="ad-decline">
                   <span className="label">Record a payment</span>
+                  <p className="muted small">Money the guest sent you (downpayment or balance).</p>
                   <div className="fields two">
                     <label>
                       <span className="label">Amount (PHP)</span>
                       <input inputMode="numeric" value={pf.amount} onChange={(e) => setPf({ ...pf, amount: e.target.value.replace(/[^\d.]/g, "") })} />
+                      {balanceOf(b) > 0 && <button type="button" className="ad-fill" onClick={() => setPf({ ...pf, amount: String(balanceOf(b)) })}>Fill balance (PHP {balanceOf(b).toLocaleString("en-PH")})</button>}
                     </label>
                     <label>
                       <span className="label">Method</span>
@@ -439,13 +463,62 @@ function Drawer({ b, api, close, onSave }: { b: Booking; api: Api; close: () => 
                     </label>
                   </div>
                   <div className="ad-act">
-                    <button className="btn btn-solid" onClick={() => addPay("payment")}>
+                    <button className="btn btn-solid" onClick={addPay}>
                       <span>Record payment</span>
                     </button>
-                    <button className="btn" onClick={() => addPay("refund")}>
-                      <span>Record refund</span>
-                    </button>
                   </div>
+                </div>
+              )}
+              {!demo && paidSum > 0 && (
+                <div className="ad-refund">
+                  {!refundOpen ? (
+                    <div className="ad-refund-row">
+                      <p className="small">
+                        <b>Refund to the guest</b>
+                        <br />
+                        <span className="muted">Net received so far: PHP {paidSum.toLocaleString("en-PH")}. Use this when you send money back (cancellation, overpayment).</span>
+                      </p>
+                      <button className="btn" onClick={() => { setRf({ ...rf, amount: String(paidSum) }); setRefundOpen(true); }}>
+                        <span>Give a refund</span>
+                      </button>
+                    </div>
+                  ) : (
+                    <>
+                      <span className="label">Refund to the guest</span>
+                      <p className="muted small">Record money you sent back. You can refund up to PHP {paidSum.toLocaleString("en-PH")}.</p>
+                      <div className="fields two">
+                        <label>
+                          <span className="label">Amount to refund (PHP)</span>
+                          <input inputMode="numeric" value={rf.amount} onChange={(e) => setRf({ ...rf, amount: e.target.value.replace(/[^\d.]/g, "") })} />
+                        </label>
+                        <label>
+                          <span className="label">Sent back through</span>
+                          <Select value={rf.method} onChange={(e) => setRf({ ...rf, method: e.target.value })}>
+                            {["GCash", "Maya", "Bank transfer", "Cash", "Card"].map((m) => (
+                              <option key={m}>{m}</option>
+                            ))}
+                          </Select>
+                        </label>
+                        <label>
+                          <span className="label">Reference no. (optional)</span>
+                          <input value={rf.ref} onChange={(e) => setRf({ ...rf, ref: e.target.value })} />
+                        </label>
+                        <label>
+                          <span className="label">Reason (required)</span>
+                          <input value={rf.why} placeholder="e.g. Guest cancelled, 50% refund per policy" onChange={(e) => setRf({ ...rf, why: e.target.value })} />
+                        </label>
+                      </div>
+                      {rfAmount > paidSum && <p className="small" style={{ color: "var(--wine, #5a1d24)" }}>That is more than the guest paid (PHP {paidSum.toLocaleString("en-PH")}).</p>}
+                      <div className="ad-act">
+                        <button className="btn btn-solid" disabled={!rfOk} onClick={addRefund}>
+                          <span>Record refund of PHP {rfAmount > 0 ? rfAmount.toLocaleString("en-PH") : "0"}</span>
+                        </button>
+                        <button className="btn" onClick={() => setRefundOpen(false)}>
+                          <span>Never mind</span>
+                        </button>
+                      </div>
+                    </>
+                  )}
                 </div>
               )}
               {b.status === "confirmed" && !demo && (
